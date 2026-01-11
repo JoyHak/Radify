@@ -33,17 +33,17 @@ Radify.CreateMenu('main', [[
     ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow2.png', 
     click: Sub('лПапки', [[
       {
-        text: 'Documents',
+        text: 'Доки',
         click: Dir('C:\Users\ToYu\Documents'),
         image: 'C:\Users\ToYu\Pictures\icons\Lumicons\Note Grey.ico'
       },
       {
-        text: 'Downloads',
+        text: 'Загрузки',
         click: Dir('C:\Users\ToYu\Downloads'),
         image: 'C:\Users\ToYu\Pictures\icons\Lumicons\System\User Downloads.ico'
       },
       {
-        text: 'Screenshots',
+        text: 'Скрины',
         click: Dir('C:\Users\ToYu\Pictures\Screenshots'),
         image: 'C:\Users\ToYu\Pictures\icons\Lumicons\Mono\screenshot.ico'
       }
@@ -54,27 +54,27 @@ Radify.CreateMenu('main', [[
         image: 'C:\Users\ToYu\Pictures\icons\Lumicons\System\User Links.ico',
         click: Sub('лЯрлыки', [[
           {
-            text: 'Startup',
+            text: 'Автозапуск',
             click: Dir('C:\Users\ToYu\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup'),
             image: 'C:\Users\ToYu\Pictures\icons\PNG\clock_history_3.png'
           },
           {
-            text: 'ToYu',
+            text: 'Порты',
             click: Dir('C:\Users\ToYu'),
             image: 'C:\Users\ToYu\Pictures\icons\ICO\pack_archive_cube.ico'
           },
           {
-            text: 'Programs',
+            text: 'Ярлыки',
             click: Dir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs'),
             image: 'C:\Users\ToYu\Pictures\icons\Lumicons\System\User Links.ico'
           },
           {
-            text: 'Program Files (x86)',
+            text: 'Programs x86',
             click: Dir('C:\Program Files (x86)'),
             image: 'C:\Users\ToYu\Pictures\icons\PNG\windows orb2.png'
           },
           {
-            text: 'Program Files',
+            text: 'Programs',
             click: Dir('C:\Program Files'),
             image: 'C:\Users\ToYu\Pictures\icons\PNG\windows orb.png'
           }
@@ -86,7 +86,7 @@ Radify.CreateMenu('main', [[
         ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png', 
         click: Sub('лСкрипты', [[
           {
-            text: 'Scripts',
+            text: 'Xyplorer',
             click: Dir('C:\Users\ToYu\XYplorer\Data\Scripts'),
             image: 'C:\Users\ToYu\Pictures\icons\PNG\xyplorer file.png'
           },
@@ -110,19 +110,19 @@ Radify.CreateMenu('main', [[
     ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png', 
     click: Sub('лМенеджеры', [[
       {
+        text: 'Vivaldi',
+        click: Dir('C:\Users\ToYu\AppData\Local\Vivaldi\Application\vivaldi.exe'),
+        image: 'C:\Users\ToYu\Pictures\icons\PNG\Vivaldi round.png'
+      },
+      {
         text: 'Xyplorer',
         click: Dir('C:\Users\ToYu\XYplorer\XYplorer.exe'),
         image: 'C:\Users\ToYu\Pictures\icons\PNG\xyplorer small.png'
       },
       {
-        text: 'Vivaldi',
-        click: Dir('C:\Users\ToYu\AppData\Local\Vivaldi\Application\vivaldi.exe'),
-        image: 'C:\Users\ToYu\Pictures\icons\McMuse\Dock Icon\vivaldi.png'
-      },
-      {
         text: 'VPN',
         click: Dir('C:\Program Files\OpenVPN Connect\OpenVPNConnect.exe'),
-        image: 'C:\Program Files\OpenVPN Connect\OpenVPNConnect.exe'
+        image: 'C:\Users\ToYu\Pictures\icons\PNG\openVPN.png'
       },
       {
         text: 'Launcher',
@@ -191,9 +191,9 @@ Radify.CreateMenu('main', [[
             image: 'C:\Users\ToYu\Pictures\icons\PNG\explorer small.png'
           },
           {
-            text: 'Dopus',
-            click: Dir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\GPSoftware\Directory Opus\Directory Opus.lnk'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\dopus small.png'
+            text: 'Xyplorer',
+            click: Dir('C:\Users\ToYu\XYplorer\XYplorer.exe'),
+            image: 'C:\Users\ToYu\Pictures\icons\PNG\xyplorer small.png'
           },
           {
             text: 'TotalCmd',
@@ -201,10 +201,10 @@ Radify.CreateMenu('main', [[
             image: 'C:\Users\ToYu\Pictures\icons\PNG\totalcmd small.png'
           },
           {
-            text: 'Xyplorer',
-            click: Dir('C:\Users\ToYu\XYplorer\XYplorer.exe'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\xyplorer small.png'
-          }
+            text: 'Dopus',
+            click: Dir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\GPSoftware\Directory Opus\Directory Opus.lnk'),
+            image: 'C:\Users\ToYu\Pictures\icons\PNG\dopus small.png'
+          },
         ]])
       },
       {
@@ -230,6 +230,11 @@ Radify.CreateMenu('main', [[
         ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png',
         click: Sub('лКастомизация', [[
           {
+            text: 'MsStyleEditor',
+            click: Dir('C:\Users\ToYu\msstyleEditor.exe'),
+            image: 'C:\Users\ToYu\Pictures\icons\ICO\window manager UI.ico'
+          },
+          {
             text: 'Win10',
             click: Dir('C:\Users\ToYu\Win 10 Tweaker.exe'),
             image: 'C:\Users\ToYu\Pictures\icons\Fluent Individual Icons\apps\wine.ico'
@@ -237,12 +242,7 @@ Radify.CreateMenu('main', [[
           {
             text: 'Winaero',
             click: Dir('C:\Program Files\Winaero Tweaker\WinaeroTweaker.exe'),
-            image: 'C:\Program Files\Winaero Tweaker\WinaeroTweaker.exe'
-          },
-          {
-            text: 'MsStyleEditor',
-            click: Dir('C:\Users\ToYu\msstyleEditor.exe'),
-            image: 'C:\Users\ToYu\Pictures\icons\ICO\window manager UI.ico'
+            image: 'C:\Users\ToYu\Pictures\icons\PNG\winaero.png'
           },
           {
             text: 'Windhawk',
@@ -257,7 +257,7 @@ Radify.CreateMenu('main', [[
         ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png',
         click: Sub('лИконки', [[
           {
-            text: 'XY icons',
+            text: 'Xyplorer',
             click: Dir('C:\Users\ToYu\XYplorer\Data\Icons'),
             image: 'C:\Users\ToYu\Pictures\icons\3D graphics_png\icon edit scale ruby 2.png'
           },
@@ -267,7 +267,7 @@ Radify.CreateMenu('main', [[
             image: 'C:\Users\ToYu\Pictures\icons\3D graphics_png\icon edit scale ruby.png'
           },
           {
-            text: 'Resource Hacker',
+            text: 'ResHacker',
             click: Dir('C:\Users\ToYu\Resource Hacker\ResourceHacker.exe'),
             image: 'C:\Users\ToYu\Pictures\icons\3D graphics\icon scale ruby edit 2.ico'
           },
@@ -286,12 +286,17 @@ Radify.CreateMenu('main', [[
           {
             text: 'Spy',
             click: Dir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Spy.lnk'),
-            image: 'C:\Users\ToYu\Pictures\icons\ICO\anti_spyware.ico'
+            image: 'C:\Users\ToYu\Pictures\icons\PNG\anti_spyware.png'
           },
           {
             text: 'Autoruns',
             click: Dir('C:\Users\ToYu\SysinternalsSuite\Autoruns64.exe'),
-            image: 'C:\Users\ToYu\Pictures\icons\ICO\clock_history_3.ico'
+            image: 'C:\Users\ToYu\Pictures\icons\PNG\clock_history4.png'
+          },
+          {
+            text: 'Processes',
+            click: Dir('C:\Users\ToYu\SysinternalsSuite\Procmon64.exe'),
+            image: 'C:\Users\ToYu\Pictures\icons\PNG\utilities-energy-monitor.png'
           },
           {
             text: 'Explorer',
@@ -299,14 +304,9 @@ Radify.CreateMenu('main', [[
             image: 'C:\Users\ToYu\Pictures\icons\PNG\performance monitor2.png'
           },
           {
-            text: 'Processes',
-            click: Dir('C:\Users\ToYu\SysinternalsSuite\Procmon64.exe'),
-            image: 'C:\Users\ToYu\Pictures\icons\Fluent Individual Icons\apps\utilities-energy-monitor.ico'
-          },
-          {
             text: 'RegEdit',
             click: Dir('C:\Users\ToYu\ooregeditor\OORegEdt.exe'),
-            image: 'C:\Users\ToYu\Pictures\icons\ICO\registry blocks2.ico'
+            image: 'C:\Users\ToYu\Pictures\icons\PNG\registry blocks2.png'
           }
         ]])
       },
@@ -321,12 +321,12 @@ Radify.CreateMenu('main', [[
             image: 'C:\Users\ToYu\Pictures\icons\PNG\drive defragmentation blocks.png'
           },
           {
-            text: 'clean_system.ps1',
+            text: 'Clean',
             click: Dir('C:\Configs and settings\PowerShell\clean_system.ps1'),
             image: 'C:\Users\ToYu\Pictures\icons\PNG\clear drive.png'
           },
           {
-            text: 'Revo Uninstaller Pro',
+            text: 'Uninstaller',
             click: Dir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Revo Uninstaller Pro\Revo Uninstaller Pro.lnk'),
             image: 'C:\Users\ToYu\Pictures\icons\ICO\erase drive.ico'
           },
@@ -352,7 +352,7 @@ Radify.CreateMenu('main', [[
       {
         text: 'Flow Launcher',
         click: Dir('C:\Users\ToYu\FlowLauncher\Flow.Launcher.exe'),
-        image: 'C:\Users\ToYu\FlowLauncher\Flow.Launcher.exe'
+        image: 'C:\Users\ToYu\Pictures\icons\PNG\flow launcher.png'
       },
       {
         text: 'Typora',
@@ -360,15 +360,15 @@ Radify.CreateMenu('main', [[
         image: 'C:\Users\ToYu\Pictures\icons\PNG\typora2.png'
       },
       {
+        text: 'CLion',
+        click: Dir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\JetBrains\CLion 2024.1.5.lnk'),
+        image: 'C:\Users\ToYu\Pictures\icons\PNG\clion.png'
+      },
+      {
         text: 'Warp',
         click: Dir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Warp.lnk'),
         image: 'C:\Users\ToYu\Pictures\icons\PNG\console3.png'
       },
-      {
-        text: 'CLion',
-        click: Dir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\JetBrains\CLion 2024.1.5.lnk'),
-        image: 'C:\Users\ToYu\Pictures\icons\PNG\clion.png'
-      }
     ]])
   },  
 ]])
