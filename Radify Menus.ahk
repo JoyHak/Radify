@@ -12,6 +12,18 @@ if (!pToken := Gdip_Startup()) {
     ExitApp    
 }
 
+if (FileExist('History.json')) {
+    _file := FileOpen('History.json', 'r', 'UTF-8')
+    history := JSON_thqby_Radify.Parse(_file.Read(), false, false)
+    _file.Close()
+} else {
+    history := {
+        safeMode: false, 
+        shutdownTimer: false,
+        powerScheme: '386-11'
+    }
+}
+
 ; ── Callbacks ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 Dir(path, *) => Run.Bind(path, , , , )
@@ -45,11 +57,8 @@ ShutdownMenu(limit := 12) {
     return (*) => m.Show()
 }
 
-safeMode := Radify.generals.safeMode
 SetSafeMode(mode := 'default') {
-    global pToken
-    
-    Radify.generals.safeMode := true
+    history.safeMode := true
     vbs := 'SafeMode'
     
     switch mode, false {
@@ -59,13 +68,11 @@ SetSafeMode(mode := 'default') {
             vbs := 'SafeModeCommandPrompt'
         case 'exit', 'normal':
             vbs := 'SafeModeNormalMode'
-            Radify.generals.safeMode := false        
+            history.safeMode := false        
     }
-    
-    return (*) => (
-        OnMenuExit(),
-        Cmd('wscript.exe "C:\ProgramData\WinaeroTweaker\' vbs '.vbs"').Call()
-    )
+    ToolTip(history.safeMode ' ' vbs)    
+    OnMenuExit()
+    Cmd('wscript.exe "C:\ProgramData\WinaeroTweaker\' vbs '.vbs"').Call()
 }
 
 ; ── Menus ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -611,9 +618,9 @@ Radify.CreateMenu('main', [[
         image: 'C:\Users\ToYu\Pictures\icons\Fluent Individual Icons\apps\kshutdown.ico'
       },
       { ; Войти/выйти из безопасного режима
-        text:  safeMode ? 'Обычный режим' : 'Безопасный режим',
-        click: safeMode ? SetSafeMode('exit') : SetSafeMode('network'),
-        image: 'C:\Users\ToYu\Pictures\icons\Hemis\' . (safeMode ? 'warning2' : 'warning') . '.ico'
+        text:  history.safeMode ? 'Обычный режим' : 'Безопасный режим',
+        click: SetSafeMode.Bind(history.safeMode ? 'exit' : 'network'),
+        image: 'C:\Users\ToYu\Pictures\icons\Hemis\' . (history.safeMode ? 'warning2' : 'warning') . '.ico'
       },
     ]])
   }
@@ -669,8 +676,12 @@ OnTrayClick(wParam, lParam, uMsg, hWnd) {
     }
 }
 
-OnMenuExit(exitReason := 'exit', exitCode := 0) {
-    global pToken
+OnMenuExit(exitReason := 'exit', exitCode := 0) {   
+    _history := JSON_thqby_Radify.stringify(history)
+    
+    _file := FileOpen('History.json', 'w', 'UTF-8')
+    _file.Write(_history)
+    _file.Close()
     
     Radify.DisposeResources()
     Gdip_Shutdown(pToken)
