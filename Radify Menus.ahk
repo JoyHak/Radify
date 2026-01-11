@@ -42,18 +42,31 @@ ShutdownMenu(limit := 12) {
         m.Add('&' A_Index ' hours', Cmd('shutdown.exe -s -f -t ' (3600 * A_Index)))
     }
 
-Dir(path, *) => Run.Bind(path, , , , )
-App(path, *) => Run.Bind(path, , , , )
-
-Image(path, menuId, itemText, image) {
-    return (*) => (Run(path), Radify.SetItemImage(menuId, itemText, image))
+    return (*) => m.Show()
 }
 
-Func.Prototype.DefineProp(
-    '_', { Call: (
-        (f, params*) => f.Bind(params*)
-    )}
-)
+safeMode := Radify.generals.safeMode
+SetSafeMode(mode := 'default') {
+    global pToken
+    
+    Radify.generals.safeMode := true
+    vbs := 'SafeMode'
+    
+    switch mode, false {
+        case 'net', 'network':
+            vbs := 'SafeModeNetworking'
+        case 'cmd', 'command', 'prompt':   
+            vbs := 'SafeModeCommandPrompt'
+        case 'exit', 'normal':
+            vbs := 'SafeModeNormalMode'
+            Radify.generals.safeMode := false        
+    }
+    
+    return (*) => (
+        Radify.OnExit(Radify, pToken),
+        Cmd('wscript.exe "C:\ProgramData\WinaeroTweaker\' vbs '.vbs"').Call()
+    )
+}
 
 ; ── Menus ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
