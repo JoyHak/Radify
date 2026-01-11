@@ -11,3 +11,15 @@ if (!pToken := Gdip_Startup()) {
     MsgBox('GDI+ failed to start. Please ensure you have GDI+ on your system.',, 'Iconx')
     ExitApp    
 }
+
+; ── Callbacks ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+Sub(name, params*) => (Radify.CreateMenu(name, params*), Radify.Show.Bind(Radify, name, )) 
+Dir(path, *) => Run.Bind(path, , , , )
+App(path, *) => Run.Bind(path, , , , )
+
+Func.Prototype.DefineProp(
+    '_', { Call: (
+        (f, params*) => f.Bind(params*)
+    )}
+)
