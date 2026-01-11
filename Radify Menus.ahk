@@ -63,7 +63,7 @@ SetSafeMode(mode := 'default') {
     }
     
     return (*) => (
-        Radify.OnExit(Radify, pToken),
+        ; Radify.OnExit(Radify, pToken),
         Cmd('wscript.exe "C:\ProgramData\WinaeroTweaker\' vbs '.vbs"').Call()
     )
 }
@@ -678,7 +678,7 @@ ToggleSuspend() {
 
 OnMessage(0x404, OnTrayClick)
 OnMessage(1075,  (*) => Radify.Show('main'))
-OnExit(Radify.OnExit.Bind(Radify, pToken))
+OnExit((*) => (Radify.DisposeResources(), Gdip_Shutdown(pToken)))
 
 TraySetIcon('images\radify1.ico',, true)
 
