@@ -107,7 +107,7 @@ Radify.CreateMenu('main', [[
   {
     text: 'Менеджеры',
     image: 'C:\Users\ToYu\Pictures\icons\PNG\xyplorer small.png',
-    ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png', 
+    ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow2.png', 
     click: Sub('лМенеджеры', [[
       {
         text: 'Vivaldi',
@@ -129,6 +129,79 @@ Radify.CreateMenu('main', [[
         click: Dir('C:\Configs and settings\AutoHotKey\hotkeys\launcher.ahk'),
         image: 'C:\Users\ToYu\Pictures\icons\Fluent\png\recentmenu.png'
       }
+    ]]), 
+    rightClick: Sub('рТворчество', [[
+      {
+        text: '3D',
+        image: 'C:\Users\ToYu\Pictures\icons\3D graphics_png\cinema4d.png',
+        ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png',
+        click: Sub('л3d', [[
+          {
+            text: '3D projects',
+            click: Dir('V:\Music\3D projects'),
+            image: 'C:\Users\ToYu\Pictures\icons\3D graphics_png\Cinema 4D.png'
+          },
+          {
+            text: 'c4d',
+            click: Dir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Maxon\Maxon Cinema 4D\Maxon Cinema 4D 2025.lnk'),
+            image: 'C:\Users\ToYu\Pictures\icons\3D graphics_png\cinema4d.png'
+          },
+          {
+            text: 'Sketchfab',
+            click: Dir('https://sketchfab.com/search?features=downloadable&q=model&type=models'),
+            image: 'C:\Users\ToYu\Pictures\icons\3D graphics_png\cubes\white cube.png'
+          },
+          {
+            text: '3D models',
+            click: Dir('V:\Music\3D models'),
+            image: 'C:\Users\ToYu\Pictures\icons\3D graphics_png\cubes\white cube2.png'
+          }
+        ]])
+      },
+      {
+        text: 'Picture',
+        image: 'C:\Users\ToYu\Pictures\icons\PNG\Adobe Photohop Eemet-10.png',
+        ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png',
+        click: Sub('лPicture', [[
+          {
+            text: 'Pixlr',
+            click: Dir('https://pixlr.com/ru/editor/'),
+            image: 'C:\Users\ToYu\Pictures\icons\PNG\Adobe Photohop Eemet-10.png'
+          },
+          {
+            text: 'Upscale',
+            click: Dir('https://www.img2go.com/upscale-image'),
+            image: 'C:\Users\ToYu\Pictures\icons\PNG\upscale.png'
+          }
+        ]])
+      },
+      {
+        text: 'VFX',
+        image: 'C:\Users\ToYu\Pictures\icons\clay_square\Adobe After Effects.png',
+        ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png',
+        click: Sub('лvfx', [[
+          {
+            text: 'VFX projects',
+            click: Dir('V:\Music\VFX projects'),
+            image: 'C:\Users\ToYu\Pictures\icons\shrooms\PNG\AdobeAfterEffect.png'
+          },
+          {
+            text: 'CapCut',
+            click: Dir('C:\Users\ToYu\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\CapCut\CapCut.lnk'),
+            image: 'C:\Users\ToYu\Pictures\icons\McMuse\Dock Icon\capcut.png'
+          }
+        ]])
+      },
+/*
+      {
+        text: 'SFX',
+        image: 'C:\Users\ToYu\Pictures\icons\ICO\sfx sound.ico',
+        ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png',
+        click: Sub('лsfx', [[
+        
+        ]])
+      }, 
+*/
     ]])
   },
   {
