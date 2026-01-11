@@ -397,13 +397,45 @@ Radify.CreateMenu('main', [[
             click: Dir('C:\Users\ToYu\ooregeditor\OORegEdt.exe'),
             image: 'C:\Users\ToYu\Pictures\icons\PNG\registry blocks2.png'
           }
+        ]]), 
+        rightClick: Sub(,[[
+          {
+            text: 'Aida',
+            click: Dir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\FinalWire\AIDA64 Extreme\AIDA64 Extreme.lnk'),
+            image: 'C:\Users\ToYu\Pictures\icons\Lumicons\System\Setting Control Panel.ico'
+          },
+          {
+            text: 'Устройства',
+            click: Dir('C:\Users\ToYu\AppData\Local\Stardock\Start10Ctrlpnl\Диспетчер устройств.lnk'),
+            image: 'C:\Users\ToYu\Pictures\icons\Lumicons\System\Device Keyboard.ico'
+          },
+          {
+            text: 'Диски',
+            click: Dir('C:\Users\ToYu\AppData\Local\Stardock\Start10Ctrlpnl\Создание и форматирование разделов жесткого диска.lnk'),
+            image: 'C:\Users\ToYu\Pictures\icons\kora\drive-harddisk.png'
+          },
+          {
+            text: 'Панель',
+            click: Dir('C:\Users\ToYu\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\System Tools\Control Panel.lnk'),
+            image: 'C:\Users\ToYu\Pictures\icons\Fluent\png\gocontrolpanel.png'
+          },
+          {
+            text: 'Службы',
+            click: Dir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Administrative Tools\services.lnk'),
+            image: 'C:\Users\ToYu\Pictures\icons\Lumicons\System\Services.ico'
+          },          
+          {
+            text: 'События',
+            click: Dir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Administrative Tools\Event Viewer.lnk'),
+            image: 'C:\Users\ToYu\Pictures\icons\Lumicons\System\Event Viewer.ico'
+          }
         ]])
       },
       {
         text: 'Диск',
         image: 'C:\Users\ToYu\Pictures\icons\PNG\drive partition defragment tree size.png',
         ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png',
-        click: Sub('лДиск', [[
+        click: Sub(,[[
           {
             text: 'PerfectDisk',
             click: Dir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\PerfectDisk.lnk'),
@@ -437,7 +469,7 @@ Radify.CreateMenu('main', [[
     text: 'Текст',
     image: 'C:\Users\ToYu\Pictures\icons\PNG\console3.png',
     ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png',
-    click: Sub('лТекст', [[
+    click: Sub(,[[
       {
         text: 'Flow Launcher',
         click: Dir('C:\Users\ToYu\FlowLauncher\Flow.Launcher.exe'),
@@ -460,6 +492,31 @@ Radify.CreateMenu('main', [[
       },
     ]])
   },  
+  {
+    text: 'Настройки',
+    image: 'C:\Users\ToYu\Pictures\icons\PNG\settings_gray.png',
+    ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow2.png', 
+    click: Sub(,[[
+      {
+        text: 'Настройки',
+        click: Dir('ms-settings:'),
+        image: 'C:\Users\ToYu\Pictures\icons\PNG\settings_gray.png'
+      },
+      {
+        text: 'Сети',
+        click: Dir('shell:::{7007ACC7-3202-11D1-AAD2-00805FC1270E}'),
+        image: 'C:\Users\ToYu\Pictures\icons\PNG\settings_gray.png'
+      },
+      
+    ]]),
+    rightClick: Sub(,[[
+      {
+        text: 'Доки',
+        click: Dir('C:\Users\ToYu\Documents'),
+        image: 'C:\Users\ToYu\Pictures\icons\Hemis\documents.ico'
+      }      
+    ]])
+  }, 
 ]])
 
 ; ── Tray ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
