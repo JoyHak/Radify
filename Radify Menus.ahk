@@ -25,6 +25,10 @@ Sub(name := '', params*) {
 Dir(path, *) => Run.Bind(path, , , , )
 App(path, *) => Run.Bind(path, , , , )
 
+Image(path, menuId, itemText, image) {
+    return (*) => (Run(path), Radify.SetItemImage(menuId, itemText, image))
+}
+
 Func.Prototype.DefineProp(
     '_', { Call: (
         (f, params*) => f.Bind(params*)
