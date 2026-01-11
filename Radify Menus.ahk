@@ -372,3 +372,74 @@ Radify.CreateMenu('main', [[
     ]])
   },  
 ]])
+
+; ── Tray ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+trayMenu := [
+{
+    text: 'Settings',
+    image: 'images\settings.ico',
+    click: (*) => Run('Radify Skin Editor.ahk'),
+},
+{
+    text: 'Edit',
+    image: 'images\edit-orange.ico',
+    click: (*) => Edit(),
+},
+{
+    text: 'Scripts',
+    image: 'images\folder-orange.ico',
+    click: (*) => Run(A_ScriptDir),
+},
+{
+    text: 'Suspend',
+    image: 'images\radify0.ico',
+    click: (*) => ToggleSuspend(),
+},
+{
+    text: 'Reload',
+    image: 'images\reload-orange.ico',
+    click: (*) => Reload(),
+},
+{
+    text: 'Exit',
+    image: 'images\exit-orange.ico',
+    click: (*) => ExitApp(),
+},       
+]
+
+
+A_TrayMenu.Delete()
+for item in trayMenu {
+    A_TrayMenu.Add(item.text, item.click)
+    A_TrayMenu.SetIcon(item.text, item.image)
+}
+
+OnTrayClick(wParam, lParam, uMsg, hWnd) {
+    static WM_LBUTTONDOWN := 0x201
+
+    if (lParam = WM_LBUTTONDOWN) {        
+        Radify.Show('main')
+    }
+}
+
+OnWmUser(wParam, lParam, uMsg, hWnd) {
+    Radify.Show('main')
+}
+    
+ToggleSuspend() {
+    Suspend(-1)
+    TraySetIcon(A_IsSuspended 
+        ? 'images\radify0.ico' 
+        : 'images\radify0.ico')
+}
+
+OnMessage(0x404, OnTrayClick)
+OnMessage(1075,  OnWmUser)
+OnExit((*) => (Radify.DisposeResources(), Gdip_Shutdown(pToken)))
+
+TraySetIcon('images\radify1.ico',, true)
+
+HotIfWinExist('RadifyGui_0_0 ahk_class AutoHotkeyGUI')
+Hotkey('Esc', (*) => WinClose(WinExist()))
+HotIfWinExist()
