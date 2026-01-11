@@ -42,11 +42,11 @@ Radify.CreateMenu('main', [[
     text: 'Папки',
     image: 'C:\Users\ToYu\Pictures\icons\PNG\folder small.png',
     ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow2.png', 
-    click: Sub('лПапки', [[
+    click: Sub(,[[
       {
         text: 'Доки',
         click: Dir('C:\Users\ToYu\Documents'),
-        image: 'C:\Users\ToYu\Pictures\icons\Lumicons\Note Grey.ico'
+        image: 'C:\Users\ToYu\Pictures\icons\Hemis\documents.ico'
       },
       {
         text: 'Загрузки',
@@ -59,11 +59,11 @@ Radify.CreateMenu('main', [[
         image: 'C:\Users\ToYu\Pictures\icons\Lumicons\Mono\screenshot.ico'
       }
     ]]),
-    rightClick: Sub('рПапки', [[
+    rightClick: Sub(,[[
       {
         text: 'Ярлыки',
         image: 'C:\Users\ToYu\Pictures\icons\Lumicons\System\User Links.ico',
-        click: Sub('лЯрлыки', [[
+        click: Sub(,[[
           {
             text: 'Автозапуск',
             click: Dir('C:\Users\ToYu\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup'),
@@ -95,7 +95,7 @@ Radify.CreateMenu('main', [[
         text: 'Скрипты',
         image: 'C:\Users\ToYu\Pictures\icons\PNG\xyplorer file.png',
         ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png', 
-        click: Sub('лСкрипты', [[
+        click: Sub(,[[
           {
             text: 'Xyplorer',
             click: Dir('C:\Users\ToYu\XYplorer\Data\Scripts'),
@@ -119,7 +119,7 @@ Radify.CreateMenu('main', [[
     text: 'Менеджеры',
     image: 'C:\Users\ToYu\Pictures\icons\PNG\xyplorer small.png',
     ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow2.png', 
-    click: Sub('лМенеджеры', [[
+    click: Sub(,[[
       {
         text: 'Vivaldi',
         click: Dir('C:\Users\ToYu\AppData\Local\Vivaldi\Application\vivaldi.exe'),
@@ -141,12 +141,12 @@ Radify.CreateMenu('main', [[
         image: 'C:\Users\ToYu\Pictures\icons\Fluent\png\recentmenu.png'
       }
     ]]), 
-    rightClick: Sub('рТворчество', [[
+    rightClick: Sub(,[[
       {
         text: '3D',
         image: 'C:\Users\ToYu\Pictures\icons\3D graphics_png\cinema4d.png',
         ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png',
-        click: Sub('л3d', [[
+        click: Sub(,[[
           {
             text: '3D projects',
             click: Dir('V:\Music\3D projects'),
@@ -173,7 +173,7 @@ Radify.CreateMenu('main', [[
         text: 'Picture',
         image: 'C:\Users\ToYu\Pictures\icons\PNG\Adobe Photohop Eemet-10.png',
         ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png',
-        click: Sub('лPicture', [[
+        click: Sub(,[[
           {
             text: 'Pixlr',
             click: Dir('https://pixlr.com/ru/editor/'),
@@ -190,7 +190,7 @@ Radify.CreateMenu('main', [[
         text: 'VFX',
         image: 'C:\Users\ToYu\Pictures\icons\clay_square\Adobe After Effects.png',
         ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png',
-        click: Sub('лvfx', [[
+        click: Sub(,[[
           {
             text: 'CapCut',
             click: Dir('C:\Users\ToYu\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\CapCut\CapCut.lnk'),
@@ -213,7 +213,7 @@ Radify.CreateMenu('main', [[
         text: 'SFX',
         image: 'C:\Users\ToYu\Pictures\icons\ICO\sfx sound.ico',
         ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png',
-        click: Sub('лsfx', [[
+        click: Sub(, [[
         
         ]])
       }, 
@@ -224,7 +224,7 @@ Radify.CreateMenu('main', [[
     text: 'Кодинг',
     image: 'C:\Users\ToYu\Pictures\icons\PNG\Notepad++.png',
     ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow2.png', 
-    click: Sub('лКодинг', [[
+    click: Sub(,[[
       {
         text: 'Syncovery',
         click: Dir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Syncovery x64\Syncovery.lnk'),
@@ -241,12 +241,12 @@ Radify.CreateMenu('main', [[
         image: 'C:\Users\ToYu\Pictures\icons\PNG\gitbutler rounded2.png'
       }
     ]]), 
-    rightClick: Sub('рКодинг', [[
+    rightClick: Sub(,[[
       {
         text: 'Релиз',
         image: 'C:\Users\ToYu\Pictures\icons\PNG\github.png',
         ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow2.png',
-        click: Sub('лРелиз', [[
+        click: Sub(,[[
           {
             text: 'Virus',
             click: Dir('https://www.virustotal.com/gui/file/1e1027e81d1a188daff3c95dfa787f2fea2f85b81c15f32c4cedba3c6fbdd38a/behavior'),
@@ -273,7 +273,7 @@ Radify.CreateMenu('main', [[
         text: 'Менеджеры',
         image: 'C:\Users\ToYu\Pictures\icons\PNG\xyplorer small.png',
         ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png',
-        click: Sub('лФМенеджеры', [[
+        click: Sub(,[[
           {
             text: 'Explorer',
             click: Dir('C:\Users\ToYu\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\File Explorer.lnk'),
@@ -312,12 +312,12 @@ Radify.CreateMenu('main', [[
     text: 'Приложения',
     image: 'C:\Users\ToYu\Pictures\icons\PNG\performance monitor2.png',
     ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png',
-    click: Sub('лПриложения', [[
+    click: Sub(,[[
       {
         text: 'Кастомизация',
         image: 'C:\Users\ToYu\Pictures\icons\ICO\window manager UI.ico',
         ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png',
-        click: Sub('лКастомизация', [[
+        click: Sub(,[[
           {
             text: 'MsStyleEditor',
             click: Dir('C:\Users\ToYu\msstyleEditor.exe'),
@@ -344,7 +344,7 @@ Radify.CreateMenu('main', [[
         text: 'Иконки',
         image: 'C:\Users\ToYu\Pictures\icons\3D graphics_png\icon edit scale ruby.png',
         ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png',
-        click: Sub('лИконки', [[
+        click: Sub(,[[
           {
             text: 'Xyplorer',
             click: Dir('C:\Users\ToYu\XYplorer\Data\Icons'),
@@ -370,8 +370,8 @@ Radify.CreateMenu('main', [[
       {
         text: 'Наблюдение',
         image: 'C:\Users\ToYu\Pictures\icons\PNG\performance monitor2.png',
-        ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png',
-        click: Sub('лНаблюдение', [[
+        ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow2.png',
+        click: Sub(,[[
           {
             text: 'Spy',
             click: Dir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Spy.lnk'),
