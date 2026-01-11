@@ -181,15 +181,20 @@ Radify.CreateMenu('main', [[
         ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png',
         click: Sub('лvfx', [[
           {
+            text: 'CapCut',
+            click: Dir('C:\Users\ToYu\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\CapCut\CapCut.lnk'),
+            image: 'C:\Users\ToYu\Pictures\icons\McMuse\Dock Icon\capcut.png'
+          },        
+          {
             text: 'VFX projects',
             click: Dir('V:\Music\VFX projects'),
             image: 'C:\Users\ToYu\Pictures\icons\shrooms\PNG\AdobeAfterEffect.png'
           },
           {
-            text: 'CapCut',
-            click: Dir('C:\Users\ToYu\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\CapCut\CapCut.lnk'),
-            image: 'C:\Users\ToYu\Pictures\icons\McMuse\Dock Icon\capcut.png'
-          }
+            text: 'AfterFX',
+            click: Dir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Adobe After Effects 2024.lnk'),
+            image: 'C:\Users\ToYu\Pictures\icons\clay_square\Adobe After Effects.png'
+          },
         ]])
       },
 /*
