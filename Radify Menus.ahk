@@ -14,6 +14,17 @@ if (!pToken := Gdip_Startup()) {
 
 ; ── Callbacks ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+Dir(path, *) => Run.Bind(path, , , , )
+App(path, *) => Run.Bind(path, , , , )
+Cmd(cmd,  *) => Run.Bind(A_ComSpec ' /c ' cmd, , 'hide', , )
+
+Image(path, menuId, itemText, image) {
+    return (*) => (
+        Run(path), 
+        Radify.SetItemImage(menuId, itemText, image)
+    )
+}
+
 Sub(name := '', params*) {
     if !name
         name := A_Now . Random(0, 10000) . params.length
