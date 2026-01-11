@@ -32,6 +32,15 @@ Sub(name := '', params*) {
     Radify.CreateMenu(name, params*)
     return Radify.Show.Bind(Radify, name, ) 
 }
+    
+ShutdownMenu(limit := 12) {
+    m := Menu()
+    m.Add('&Abort shutdown', Cmd('shutdown.exe -a'))
+    m.Add()
+    
+    loop limit {
+        m.Add('&' A_Index ' hours', Cmd('shutdown.exe -s -f -t ' (3600 * A_Index)))
+    }
 
 Dir(path, *) => Run.Bind(path, , , , )
 App(path, *) => Run.Bind(path, , , , )
