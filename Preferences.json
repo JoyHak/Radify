@@ -56,8 +56,6 @@
   },
   "generals":{
     "imagesDir":"RootDir\\Images",
-    "powerScheme":"3860-1234",
-    "safeMode":0,
     "soundsDir":"RootDir\\Sounds"
   },
   "skins":{
@@ -164,7 +162,7 @@
       "submenuIndicatorImage":"SubmenuIndicator.png"
     },
     "Minimal":{
-      "activateOnShow":"0",
+      "activateOnShow":"1",
       "alwaysOnTop":"1",
       "autoCenterMouse":"1",
       "autoTooltip":"1",
