@@ -14,7 +14,14 @@ if (!pToken := Gdip_Startup()) {
 
 ; ── Callbacks ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-Sub(name, params*) => (Radify.CreateMenu(name, params*), Radify.Show.Bind(Radify, name, )) 
+Sub(name := '', params*) {
+    if !name
+        name := A_Now . Random(0, 10000) . params.length
+
+    Radify.CreateMenu(name, params*)
+    return Radify.Show.Bind(Radify, name, ) 
+}
+
 Dir(path, *) => Run.Bind(path, , , , )
 App(path, *) => Run.Bind(path, , , , )
 
