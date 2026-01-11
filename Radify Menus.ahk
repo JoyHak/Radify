@@ -70,8 +70,7 @@ SetSafeMode(mode := 'default') {
             vbs := 'SafeModeNormalMode'
             history.safeMode := false        
     }
-    ToolTip(history.safeMode ' ' vbs)    
-    OnMenuExit()
+
     Cmd('wscript.exe "C:\ProgramData\WinaeroTweaker\' vbs '.vbs"').Call()
 }
 
@@ -619,7 +618,7 @@ Radify.CreateMenu('main', [[
       },
       { ; Войти/выйти из безопасного режима
         text:  history.safeMode ? 'Обычный режим' : 'Безопасный режим',
-        click: SetSafeMode.Bind(history.safeMode ? 'exit' : 'network'),
+        click: SetSafeMode.Bind(history.safeMode ? 'exit' : 'default'),
         image: 'C:\Users\ToYu\Pictures\icons\Hemis\' . (history.safeMode ? 'warning2' : 'warning') . '.ico'
       },
     ]])
@@ -699,7 +698,3 @@ OnMessage(1075,  (*) => Radify.Show('main'))
 OnExit(OnMenuExit)
 
 TraySetIcon('images\radify1.ico',, true)
-
-HotIfWinExist('RadifyGui_0_0 ahk_class AutoHotkeyGUI')
-Hotkey('Esc', (*) => WinClose(WinExist()))
-HotIfWinExist()
