@@ -422,10 +422,6 @@ OnTrayClick(wParam, lParam, uMsg, hWnd) {
         Radify.Show('main')
     }
 }
-
-OnWmUser(wParam, lParam, uMsg, hWnd) {
-    Radify.Show('main')
-}
     
 ToggleSuspend() {
     Suspend(-1)
@@ -435,7 +431,7 @@ ToggleSuspend() {
 }
 
 OnMessage(0x404, OnTrayClick)
-OnMessage(1075,  OnWmUser)
+OnMessage(1075,  (*) => Radify.Show('main'))
 OnExit((*) => (Radify.DisposeResources(), Gdip_Shutdown(pToken)))
 
 TraySetIcon('images\radify1.ico',, true)
