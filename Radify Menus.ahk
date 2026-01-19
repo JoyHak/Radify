@@ -617,7 +617,7 @@ Radify.CreateMenu('main', [[
     text: 'Настройки',
     image: 'C:\Users\ToYu\Pictures\icons\PNG\settings_gray.png',
     ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png', 
-    click: Sub(,[[
+    click: Sub('лНастройки', [[
       {
         text: 'Настройки',
         image: 'C:\Users\ToYu\Pictures\icons\PNG\settings_gray.png',
@@ -633,8 +633,8 @@ Radify.CreateMenu('main', [[
             click: App('ms-settings:display-advancedgraphics'),
             image: 'C:\Users\ToYu\Pictures\icons\Antu (gradient)\network-card.ico', 
             ItemImageScale: 0.7
-          },
-        ]]),
+          }
+        ]])
       },      
       {
         text: 'Темы',
@@ -702,36 +702,36 @@ Radify.CreateMenu('main', [[
 ; ── Tray ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 trayMenu := [
-{
+  {
     text: 'Settings',
     image: 'images\settings.ico',
     click: (*) => Run('Radify Skin Editor.ahk'),
-},
-{
+  },
+  {
     text: 'Edit',
     image: 'images\edit-orange.ico',
     click: (*) => Edit(),
-},
-{
+  },
+  {
     text: 'Scripts',
     image: 'images\folder-orange.ico',
     click: (*) => Run(A_ScriptDir),
-},
-{
+  },
+  {
     text: 'Suspend',
     image: 'images\radify0.ico',
     click: (*) => ToggleSuspend(),
-},
-{
+  },
+  {
     text: 'Reload',
     image: 'images\reload-orange.ico',
     click: (*) => Reload(),
-},
-{
+  },
+  {
     text: 'Exit',
     image: 'images\exit-orange.ico',
     click: (*) => ExitApp(),
-},       
+  },       
 ]
 
 
@@ -762,9 +762,7 @@ OnMenuExit(exitReason := 'exit', exitCode := 0) {
     
 ToggleSuspend() {
     Suspend(-1)
-    TraySetIcon(A_IsSuspended 
-        ? 'images\radify0.ico' 
-        : 'images\radify0.ico')
+    TraySetIcon('images\radify' (!A_IsSuspended) '.ico')
 }
 
 OnMessage(0x404, OnTrayClick)
@@ -772,3 +770,4 @@ OnMessage(1075,  (*) => Radify.Show('main'))
 OnExit(OnMenuExit)
 
 TraySetIcon('images\radify1.ico',, true)
+; ShowTooltip(A_ScriptName ' is initialized')
