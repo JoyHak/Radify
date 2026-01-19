@@ -20,7 +20,7 @@ if (FileExist('History.json')) {
     history := {
         safeMode: false, 
         shutdownTimer: false,
-        powerScheme: '386-11'
+        powerScheme: '',
     }
 }
 
@@ -28,7 +28,7 @@ if (FileExist('History.json')) {
 
 Dir(path, *) => Run.Bind(path, , , , )
 App(path, *) => Run.Bind(path, , , , )
-Cmd(cmd,  *) => Run.Bind(A_ComSpec ' /c ' cmd, , 'hide', , )
+Cmd(cmd,  *) => Run.Bind(A_ComSpec ' /c ' cmd, , 'hide')
 
 Image(path, menuId, itemText, image) {
     return (*) => (
@@ -44,14 +44,21 @@ Sub(name := '', params*) {
     Radify.CreateMenu(name, params*)
     return Radify.Show.Bind(Radify, name, ) 
 }
+
+ShowTooltip(text, delayMs := 2000) {
+	ToolTip(text)      
+    SetTimer(ToolTip, -delayMs)
+}
+
+; ── Modes ────────────────────────────────────────────────────────────────────────────────────────────────────────────
     
 ShutdownMenu(limit := 12) {
     m := Menu()
     m.Add('&Abort shutdown', Cmd('shutdown.exe -a'))
     m.Add()
     
-    loop limit {
-        m.Add('&' A_Index ' hours', Cmd('shutdown.exe -s -f -t ' (3600 * A_Index)))
+    loop 12 {
+        m.Add('&' A_Index ' hours', (*) => Run('shutdown.exe -s -f -t ' 3600 * A_Index))
     }
 
     return (*) => m.Show()
@@ -59,16 +66,20 @@ ShutdownMenu(limit := 12) {
 
 SetSafeMode(mode := 'default') {
     history.safeMode := true
-    vbs := 'SafeMode'
     
     switch mode, false {
+        case 'default':
+            vbs := 'SafeMode'            
         case 'net', 'network':
             vbs := 'SafeModeNetworking'
         case 'cmd', 'command', 'prompt':   
             vbs := 'SafeModeCommandPrompt'
         case 'exit', 'normal':
             vbs := 'SafeModeNormalMode'
-            history.safeMode := false        
+            history.safeMode := false
+        default:
+            history.safeMode := false
+            return Radify.ShowErrorMsg(A_ThisFunc ' - Unknown safe mode: "' mode '".')
     }
 
     Cmd('wscript.exe "C:\ProgramData\WinaeroTweaker\' vbs '.vbs"').Call()
