@@ -85,6 +85,66 @@ SetSafeMode(mode := 'default') {
     Cmd('wscript.exe "C:\ProgramData\WinaeroTweaker\' vbs '.vbs"').Call()
 }
 
+; ── Power Scheme ───────────────────────────────────────────────────────────────────────────────────────────────────
+
+powerSchemes := [
+  {
+    id: '2b253980-fc5d-471a-8a6f-406a2315c9de', 
+    text: 'Ultimate'
+  },
+  {
+    id: '381b4222-f694-41f0-9685-ff5bb260df2e', 
+    text: 'Balance'
+  },
+  {
+    id: '4353a75f-5e8a-4572-99c8-2613c648674d', 
+    text: 'Save'
+  },
+]
+
+GetPowerImage(idx := 0) {    
+    if (!idx && history.powerScheme) {
+        for scheme in powerSchemes {
+            if (scheme.id = history.powerScheme) {
+                idx := A_Index
+                break
+            }    
+        }
+    }
+    return 'C:\Users\ToYu\Pictures\icons\kora\battery' idx '.png'
+}
+
+SetPowerScheme(idx, menuId?, itemText?) {
+    Cmd('powercfg.exe /SetActive ' powerSchemes[idx].id).Call()
+    history.powerScheme := powerSchemes[idx].id
+    
+    if (IsSet(menuId) && IsSet(itemText)) {        
+        Radify.SetItemImage(
+            menuId, 
+            itemText, 
+            GetPowerImage(idx)
+        )
+    }
+}
+
+BatteryMenu(parentMenuText, targetMenuText := 'Батарея') {    
+    schemes := []
+    for scheme in powerSchemes {
+        schemes.push({
+            text:  scheme.text,
+            click: SetPowerScheme.Bind(A_Index, parentMenuText, targetMenuText), 
+            image: GetPowerImage(A_Index), 
+        })
+    }
+    
+    return {
+        text:  targetMenuText,
+        image: GetPowerImage(),
+        ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png', 
+        click: Sub(,[[schemes*]])
+    }
+}
+
 ; ── Menus ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 Radify.CreateMenu('main', [[
@@ -611,27 +671,30 @@ Radify.CreateMenu('main', [[
           }
         ]])
       }, 
+      BatteryMenu('лНастройки', 'Батарея'),
       {
         text: 'Перезапуск Проводника',
         click: Cmd('taskkill.exe /f /im explorer.exe & start explorer.exe'),
         image: 'C:\Users\ToYu\Pictures\icons\PNG\Explorer.png', 
         ItemImageScale: 0.65
-      },
+      }
+    ]]), 
+    rightClick: Sub(,[[
       {
         text: 'Таймер выключения',
         click: ShutdownMenu(),
-        image: 'C:\Users\ToYu\Pictures\icons\Fluent Individual Icons\apps\kshutdown.ico'
+        image: 'C:\Users\ToYu\Pictures\icons\PNG\clock_history4.png'
       },
       {
         text: 'Загрузка системы',
         click: Cmd('shutdown.exe -r -o -f -t 0'),
-        image: 'C:\Users\ToYu\Pictures\icons\Fluent Individual Icons\apps\kshutdown.ico'
+        image: 'C:\Users\ToYu\Pictures\icons\McMuse\Dock Icon\boot.png'
       },
       { ; Войти/выйти из безопасного режима
         text:  history.safeMode ? 'Обычный режим' : 'Безопасный режим',
         click: SetSafeMode.Bind(history.safeMode ? 'exit' : 'default'),
         image: 'C:\Users\ToYu\Pictures\icons\Hemis\' . (history.safeMode ? 'warning2' : 'warning') . '.ico'
-      },
+      }
     ]])
   }
 ]])
