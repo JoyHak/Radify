@@ -3,6 +3,8 @@
 
 #Include .\Lib\Gdip_All.ahk
 #Include Radify.ahk
+#Include C:\Configs and settings\AutoHotKey\hotkeys\Lib\messages.ahk
+
 Persistent
 CoordMode('tooltip', 'screen')
 TraySetIcon('images\radify0.ico',, true)
@@ -778,7 +780,7 @@ ToggleSuspend() {
 }
 
 OnMessage(0x404, OnTrayClick)
-OnMessage(1075,  (*) => Radify.Show('main'))
+OnMessage(msg.key.LWin,  (*) => Radify.Show('main'))
 OnExit(OnMenuExit)
 
 TraySetIcon('images\radify1.ico',, true)
