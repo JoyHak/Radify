@@ -260,7 +260,14 @@ Radify.CreateMenu('main', [[
       {
         text: 'VPN',
         click: App('C:\Program Files\OpenVPN Connect\OpenVPNConnect.exe'),
+        rightClick: App('https://www.vpnjantit.com/create-free-account?server=fr4&type=OpenVPN'),
         image: 'C:\Users\ToYu\Pictures\icons\PNG\openVPN.png'
+      },
+      {
+        text: 'Warp',
+        click: App('C:\Program Files\PORTAL WG\PORTAL WG.exe'),
+        rightClick: Dir('https://warp-gen1.vercel.app'),
+        image: 'C:\Users\ToYu\Pictures\icons\Lumicons\Mono\WiFi 3.ico'
       },
       {
         text: 'Launcher',
@@ -275,14 +282,14 @@ Radify.CreateMenu('main', [[
         ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png',
         click: Sub(,[[
           {
-            text: '3D projects',
-            click: Dir('V:\Music\3D projects'),
-            image: 'C:\Users\ToYu\Pictures\icons\3D graphics_png\Cinema 4D.png'
-          },
-          {
             text: 'c4d',
             click: App('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Maxon\Maxon Cinema 4D\Maxon Cinema 4D 2025.lnk'),
             image: 'C:\Users\ToYu\Pictures\icons\3D graphics_png\cinema4d.png'
+          },
+          {
+            text: '3D projects',
+            click: Dir('V:\Music\3D projects'),
+            image: 'C:\Users\ToYu\Pictures\icons\3D graphics_png\Cinema 4D.png'
           },
           {
             text: 'Sketchfab',
@@ -380,9 +387,10 @@ Radify.CreateMenu('main', [[
         ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png',
         click: Sub(,[[
           {
-            text: 'Virus',
-            click: App('https://www.virustotal.com/gui/file/1e1027e81d1a188daff3c95dfa787f2fea2f85b81c15f32c4cedba3c6fbdd38a/behavior'),
-            image: 'C:\Users\ToYu\Pictures\icons\Lumicons\System\Shield X.ico'
+            text: 'GitHub',
+            click: App('https://github.com/JoyHak/QuickSwitch/releases'),
+            image: 'C:\Users\ToYu\Pictures\icons\PNG\github.png', 
+            ItemImageScale: 1
           },
           {
             text: 'Releases',
@@ -390,10 +398,9 @@ Radify.CreateMenu('main', [[
             image: 'C:\Users\ToYu\Pictures\icons\PNG\zip rounded.png'
           },
           {
-            text: 'GitHub',
-            click: App('https://github.com/JoyHak/QuickSwitch/releases'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\github.png', 
-            ItemImageScale: 1
+            text: 'Virus',
+            click: App('https://www.virustotal.com/gui/file/1e1027e81d1a188daff3c95dfa787f2fea2f85b81c15f32c4cedba3c6fbdd38a/behavior'),
+            image: 'C:\Users\ToYu\Pictures\icons\Lumicons\System\Shield X.ico'
           },
           {
             text: 'Intezer',
@@ -419,8 +426,14 @@ Radify.CreateMenu('main', [[
           },
           {
             text: 'TotalCmd',
-            click: App('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Total Commander\Total Commander 64 bit.lnk'),
+            click: App('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\TotalCmd install.lnk'),
             image: 'C:\Users\ToYu\Pictures\icons\PNG\totalcmd small.png'
+          },
+          {
+            text: 'TotalCmd',
+            click: App('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\TotalCmd port.lnk'),
+            image: 'C:\Users\ToYu\Pictures\icons\3D graphics_png\save disk diskette.png', 
+            ItemImageScale: 0.635, 
           },
           {
             text: 'Dopus',
@@ -523,7 +536,7 @@ Radify.CreateMenu('main', [[
           },
           {
             text: 'Explorer',
-            click: App('C:\Users\ToYu\SysinternalsSuite\procexp64.exe'),
+            click: App('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\System Informer.lnk'),
             image: 'C:\Users\ToYu\Pictures\icons\PNG\performance monitor2.png'
           },
           {
@@ -633,7 +646,7 @@ Radify.CreateMenu('main', [[
   {
     text: 'Настройки',
     image: 'C:\Users\ToYu\Pictures\icons\PNG\settings_gray.png',
-    ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow1.png', 
+    ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow2.png', 
     click: Sub('лНастройки', [[
       {
         text: 'Настройки',
