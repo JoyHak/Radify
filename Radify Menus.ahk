@@ -27,8 +27,20 @@ if (FileExist('History.json')) {
 ; ── Callbacks ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 Dir(path, *) => Run.Bind(path, , , , )
-App(path, *) => Run.Bind(path, , , , )
-Cmd(cmd,  *) => Run.Bind(A_ComSpec ' /c ' cmd, , 'hide')
+App(path, *) {
+    return _Run.Bind(path)
+    
+    _Run(path) {        
+        SplitPath(path, , , , &base)        
+        if (hwnd := WinExist('ahk_exe ' base '.exe')) {
+            WinShow(hwnd)
+            WinActivate(hwnd)
+        } else {
+            Run(path)            
+        }
+    }
+}
+Cmd(cmd,  *) => Run(A_ComSpec ' /c ' cmd, , 'hide')
 
 Image(path, menuId, itemText, image) {
     return (*) => (
