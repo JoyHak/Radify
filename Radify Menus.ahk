@@ -68,11 +68,14 @@ ShowTooltip(text, delayMs := 2000) {
     
 ShutdownMenu(limit := 12) {
     m := Menu()
-    m.Add('&Abort shutdown', Cmd('shutdown.exe -a'))
+    m.Add('&Abort shutdown', Cmd.Bind('shutdown.exe -a'))
     m.Add()
     
     loop 12 {
-        m.Add('&' A_Index ' hours', (*) => Run('shutdown.exe -s -f -t ' 3600 * A_Index))
+        m.Add(
+            '&' A_Index ' hours', 
+            Cmd.Bind('shutdown.exe -s -f -t ' 3600 * A_Index)
+        )
     }
 
     return (*) => m.Show()
@@ -96,7 +99,7 @@ SetSafeMode(mode := 'default') {
             return Radify.ShowErrorMsg(A_ThisFunc ' - Unknown safe mode: "' mode '".')
     }
 
-    Cmd('wscript.exe "C:\ProgramData\WinaeroTweaker\' vbs '.vbs"').Call()
+    Cmd('wscript.exe "C:\ProgramData\WinaeroTweaker\' vbs '.vbs"')
 }
 
 ; ── Power Scheme ───────────────────────────────────────────────────────────────────────────────────────────────────
@@ -129,7 +132,7 @@ GetPowerImage(idx := 0) {
 }
 
 SetPowerScheme(idx, menuId?, itemText?) {
-    Cmd('powercfg.exe /SetActive ' powerSchemes[idx].id).Call()
+    Cmd('powercfg.exe /SetActive ' powerSchemes[idx].id)
     history.powerScheme := powerSchemes[idx].id
     
     if (IsSet(menuId) && IsSet(itemText)) {        
@@ -685,10 +688,10 @@ Radify.CreateMenu('main', [[
           }
         ]])
       }, 
-      BatteryMenu('лНастройки', 'Батарея'),
+      BatteryMenu('лНастройки', 'Батарея'),  ; переключить схему питания батареи
       {
         text: 'Перезапуск Проводника',
-        click: Cmd('taskkill.exe /f /im explorer.exe & start explorer.exe'),
+        click: Cmd.Bind('taskkill.exe /f /im explorer.exe & start explorer.exe'),
         image: 'C:\Users\ToYu\Pictures\icons\PNG\Explorer.png', 
         ItemImageScale: 0.65
       }
@@ -701,7 +704,7 @@ Radify.CreateMenu('main', [[
       },
       {
         text: 'Загрузка системы',
-        click: Cmd('shutdown.exe -r -o -f -t 0'),
+        click: Cmd.Bind('shutdown.exe -r -o -f -t 0'),
         image: 'C:\Users\ToYu\Pictures\icons\McMuse\Dock Icon\boot.png'
       },
       { ; Войти/выйти из безопасного режима
