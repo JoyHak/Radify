@@ -1,279 +1,66 @@
-# Radify
-## A radial menu launcher with multi-ring layouts, submenus and interactive items.
-
-Inspired by [Radial menu v4](https://www.autohotkey.com/boards/viewtopic.php?f=6&t=12078) by *Learning one*.
-
----
-
+## About
+The fork of the radial menu launcher with multi-ring layouts, submenus and interactive items.
 ![myImage](https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExa3E2ZTZqZW84eWVmdHhvMzdrODIwZzAzc2ljY2I2anZlY28xejA1eSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WxY98hu8ecuirxzxrE/giphy.gif)
 
----
-
-## 📦 Requirements
-
-- AutoHotkey v2
-- GDI+ Library for AutoHotkey v2
-
----
-
-## ✨ Features
-
-- **Customizable Menu Options:** Configure images, text, tooltips, item size, skins, and more.
-- **Custom Click Actions:** Assign various click actions to individual items and menus.
-- **Hotkeys and Hotstrings:** Assign custom hotkeys and hotstrings to trigger specific item actions.
-- **Multi-Level Submenus:** Create nested menus.
-- **Interactive Effects:** Show tooltips and glow effects when hovering over items.
-- **Sound Effects:** Add audio feedback for various menu interactions.
-- **Skin Support:** Apply different skins. Compatible with [Radial menu v4 skins](https://www.autohotkey.com/boards/viewtopic.php?t=12078).
-- **Built-In Menu Items:** 200+ items including emojis, symbols, websites, system settings, administrative tools, and power management options.
-
-## ✨ Built-In Menus
-
-- **Emojis Picker:** 60+ popular emojis.
-- **Symbols Picker:** 50+ common symbols.
-- **Websites:** 50+ frequently used websites.
-- **Settings:** 15+ system settings (GUID and ms-settings: URI links).
-- **Tools:** 15+ Windows system utilities and administrative tools.
-- **Power Options:** Shutdown, Restart, Sleep, Advanced Startup, and Restart to Safe Mode.
-- **Power Plans:** Set the active power plan.
-- **System Cleanup:** Useful shortcuts for cleaning your system.
-
----
-
-# 🎨 Radify Skin Editor
-
-Explore all customization options of the Radify class, configure settings, preview skins, and more.
-
----
-
-![myImage](https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExeTc5dm9rOWJxbWc5NmxjdGdubGlvODk3MGl5bDRvZTl5cHAzaGNobSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/rDZgccNsMgxlQodUEi/giphy.gif)
-
----
-
-## ✨ Features
-
-- **Browse Skins:** Preview all available skins.
-- **Configure Settings:** Configure default and individual skin settings.
-- **Font and Color Selection:** Browse and preview system fonts and colors.
-- **Sound Preview:** Browse and play all available sounds.
-
----
-
-## 🔧 Modify Default Settings
-
-1. Open the **Radify Skin Editor**
-2. Select the **"Default"** skin (first in the list)
-3. Configure the settings as needed
-4. Click the **"Edit"** button
-5. Click **"OK"** or **"Apply"**
-
----
-
-## 🎨 Modify a Skin
-
-1. Open the **Radify Skin Editor**
-2. Select the skin you want to modify
-3. Make your changes
-4. Click the **"Edit"** button
-5. Ensure all desired settings are checked
-6. Click **"OK"** or **"Apply"**
-
----
-
-## 🌟 Set a Skin as Default
-
-1. Open the **Radify Skin Editor**
-2. Choose your preferred skin
-3. Click the floppy disk icon to save it as the default
-
----
-
-## 🖼️ Skin Files
-
-- `ItemGlow.png`
-- `MenuOuterRim.png`
-- `MenuBack.png`
-- `ItemBack.png` *(required)*
-- `CenterImage.png`
-- `SubmenuIndicator.png`
-
-**Note:**
-
-- The Skins folder requires `.png` files for skin assets. Other image formats can be assigned programmatically or via **Radify Skin Editor**. See: [Supported Image Formats](#supported-image-formats).
-
-***Radial menu v4 skins***
-
-- All settings are loaded from `Preferences.json` instead of individual `skin definition.txt` files.
-
-- To set the submenu indicator image, you can:
-  - In **Radify Skin Editor**, set a default `SubmenuIndicatorImage`, or assign one per skin.
-  - Add a `SubmenuIndicator.png` file to each skin folder.
-  - Set `SubmenuIndicatorImage` programmatically.
-
----
-
-## 📁 Set Media Directory
-
-Files in those folders can be referenced by filename only.
-
-- Include the file extension when referencing image files (e.g., `downloads.png`).
-- Omit the `.wav` extension when referencing sound files (e.g., `tada`).
-
-Steps:
-
-1. Open the **Radify Skin Editor**
-2. Click the folder icon
-3. Choose a new directory
-
-You can also configure these directories programmatically using the following methods:
-
-- `SetImageDir(dirPath)`
-- `SetSoundDir(dirPath)`
-
----
-
-## 🗒️ Radify Skin Editor Notes
-
-- Reload any script using **Radify** after making changes for the changes to take effect.
-
----
-
-# 📖 How to Use
-
-- ## As a Library in a Script
-
-Radify can be included as a library in any AutoHotkey v2 script to create menus.
-
-**For example:**
-
-
-    #Requires AutoHotkey v2.0
-    #SingleInstance
-
-    #Include <v2\GDIp\Gdip_All>
-    #Include <v2\Radify\Radify>
-
-    ;==============================================
-
-    if (!pToken := Gdip_Startup())
-        MsgBox('GDI+ failed to start. Please ensure you have GDI+ on your system.',, 'Iconx'), ExitApp()
-
-    OnExit((*) => (Radify.DisposeResources(), Gdip_Shutdown(pToken)))
-
-    ;==============================================
-
-    Radify.CreateMenu('myMenu', [
-        [   ; ring 1
-            {image: 'device-manager.png', click: (*) => Run('devmgmt.msc')},
-            {image: 'disk-management.png', click: (*) => Run('diskmgmt.msc')},
-            {image: 'computer-management.png', click: (*) => Run('compmgmt.msc')},
-            {image: 'system-configuration.png', click: (*) => Run('msconfig.exe')},
-            {image: 'system-information.png', click: (*) => Run('msinfo32.exe')},
-            {image: 'task-scheduler.png', click: (*) => Run('taskschd.msc')},
-        ],
-        [   ; ring 2
-            {image: 'services.png', click: (*) => Run('services.msc')},
-            {image: 'registry-editor.png', click: (*) => Run('regedit.exe')},
-            {image: 'optimize-drives.png', click: (*) => Run('dfrgui.exe')},
-            {image: 'system-image.png', click: (*) => Run('sdclt.exe /BLBBACKUPWIZARD')},
-            {image: 'event-viewer.png', click: (*) => Run('eventvwr.msc')},
-            {image: 'windows-tools.png', click: (*) => Run('shell:::{D20EA4E1-3957-11D2-A40B-0C5020524153}')},
-            {
-                image: 'monitor.png',
-                click: (*) => Run('resmon.exe'),
-                text: 'Resmon',
-                tooltip: 'Resource Monitor',
-                itemImageScale: 0.35,
-                itemImageYRatio: 0.25,
-                textYRatio: 0.75,
-            },
-            {
-                image: 'monitor.png',
-                click: (*) => Run('perfmon.exe'),
-                text: 'Perfmon',
-                tooltip: 'Performance Monitor',
-                itemImageScale: 0.35,
-                itemImageYRatio: 0.25,
-                textYRatio: 0.75,
-            },
-        ],
-    ])
-
-    ^1::Radify.Show('myMenu')
-    ^2::Radify.Close('myMenu')
-
----
-
-## Item Actions
-
-- `Click`: Executes the item’s primary action.
-- `Right-Click`: Executes an alternate action (if defined).
-- `Ctrl + Click`: Executes the `CtrlClick` action if defined; otherwise, it executes the item’s `Click` action (if defined), without closing the menu.
-- Actions can also be launched via `Shift + Click`, `Alt + Click`, `Hotkeys`, and `Hotstrings`.
-
----
-
-- ## Quick Start with Built-in Menus
-
-Run **Radify Menus.ahk** to access pre-built menus with 200+ items including emojis, symbols, websites, system settings, tools, and power options. You can create, customize, or modify items by editing the file.
-
----
-
-## 🖱️ Default Actions and Shortcuts in ***Radify Menus.ahk***
-
-## Open Menu
-
-- `Middle mouse button`: Opens *mainMenu*
-- `Tray icon clicks`:
-  - `Click`: Opens *mainMenu*
-  - `Double-Click`: Opens *appsMenu*
-  - `Ctrl + Click`: Opens *websitesMenu*
-  - `Shift + Click`: Opens *aiMenu*
-  - `Alt + Click`: Opens *systemPowerMenu*
-
-## Close Menu
-
-- `Click` on the menu background.
-- `Right-Click` on the menu background or the center.
-- `Esc` key
-
-## Move Menu
-
-- `Click` and `Drag` the center to reposition the menu.
-
-## Specific Item Actions (Same item, two actions)
-
-**Items in the Emojis, Symbols, Websites, AI, and Shopping submenus**
-- `Click`: Executes the primary action.
-- `Right-Click`: Executes the primary action and keeps the menu open. By default, `Ctrl + Click` also executes the item’s `Click` action (if defined), without closing the menu.
-
-**Apps submenu**
-- `Right-Click` on submenu: Opens *Apps > Installed apps* in Windows Settings.
-
-**Folders submenu**
-- `Right-Click` on submenu: Opens *This PC*
-
-**Settings submenu**
-- `Right-Click` on submenu: Opens the *Windows Settings* app
-
-**Power Plans submenu**
-- `Right-Click` on submenu: Opens *Control Panel > Power Options*
-
-**Cleanup submenu**
-- `Click` on Recycle Bin item: Opens the Recycle Bin folder.
-- `Right-Click` on Recycle Bin item: Empties the Recycle Bin.
-
----
-
-## 🗒️ Notes
-
-- All shortcuts and behaviors are customizable.
-
----
-
-# Item Object Properties
-
-Defines the characteristics and behavior of a menu item.
+## ✨ Fork features
+- **Customizable menu options:** Configure images, text, tooltips, item size, skins, and more.
+- **Multiple sub-menus:** Assign various click actions to individual sub-menus: left click for the first sub-menu, right-click for second sub-menu.
+- **Minimalistic theme:** only solid gray without borders, shadows and neon colors.
+![right click](https://github.com/user-attachments/assets/cc97b125-64ef-4cd1-808a-b3e9f4e98e72)
+
+- **One-Level submenus:** requires muscle memory only. No more visual searching. Inspired by [Kando mouse gestures](https://kando.menu/usage/#-turbo-mode).
+- **Auto-close on losing focus:** if you opened wrong menu, just press `Esc` or click anywhere to close the menu.
+- **Change icons:** let the menu inform you about any state *(currently new one overlaps old one so its suitable only for changing colors)*. See `settings menu -> battery icons` or `safe mode`.
+![icons](https://github.com/user-attachments/assets/0d213539-495f-4942-90af-6180f2dea360)
+
+## Quick start
+
+Radify **is not standalone application**! It is fast GDIP library that can be included in [AutoHotkey scripts](https://www.autohotkey.com/docs/v2/index.htm), i.e. you need to know [how to write on AutoHotkey v2.0+](https://www.autohotkey.com/docs/v2/Language.htm)
+
+If you're already familiar with this language you want to use this menu:
+
+1. Download my [icons](https://drive.google.com/drive/folders/12Zp8vIvtqpUsaJbYuWgyfNvbjYEuOzjt) (~1 GB) because they are not a part of menu theme. There's multiple icons designed by me especially for Radify, like Spy...
+<img width="2065" height="712" alt="icons" src="https://github.com/user-attachments/assets/7ee9e6c1-f938-4366-aaf7-91a8329a8783" />
+
+You navigate through them using [Flow Launcher](https://github.com/Flow-Launcher/Flow.Launcher).
+
+2. Open the file named `Radify Menus.ahk`.
+
+3. Replace all `C:\\Users\\ToYu\\Pictures\\icon` with path to your downloaded `icons` folder.
+
+4. Add `Hotkey('$LWin',  (*) => Radify.Show('main'))` at the end (because I'm activating it from another script). Change `LWin` to your hotkey if you wish.
+
+5. Launch it.
+
+*Changing power scheme won't work on your machine that's just demo*. To enable this option, you need to retrieve GUIDs of your powerschemes and [add them here](https://github.com/JoyHak/Radify/blob/27ad9bac673ff7c8fd7855da89c0c027543f957c/Radify%20Menus.ahk#L90):
+```cmd
+powercfg /list
+```
+## Documentation
+### `Item` object properties
+
+To create a new menu you need array of objects:
+
+```js
+Radify.CreateMenu('main', [[
+  {
+    text: 'Xyplorer',
+    click: Dir('C:\Users\ToYu\XYplorer\Data\Scripts'),
+    image: 'C:\Users\ToYu\Pictures\icons\PNG\xyplorer file.png'
+  },
+  {
+    text: 'PowerShell',
+    click: Dir('C:\Configs and settings\PowerShell'),
+    image: 'C:\Users\ToYu\Pictures\icons\PNG\console3.png'
+  },
+  {
+    text: 'AutoHotKey',
+    click: Dir('C:\Configs and settings\AutoHotKey'),
+    image: 'C:\Users\ToYu\Pictures\icons\Lumicons\Mono\autohotkey.ico'
+  }
+]])
+```
+Each object represents single menu item: the characteristics and behavior. An empty object `{}` inserts a blank space in the menu, useful for spacing or alignment. You can pass any object with the following properties:
 
 | Property     | Type   | Description
 | ------------ | ------ | -------------------------------------
@@ -298,37 +85,86 @@ Defines the characteristics and behavior of a menu item.
 | `Submenu`             | array  | The submenu structure: an array of one or more inner arrays (rings), each containing [`item objects`](#item-object-properties).
 | `SubmenuOptions`      | object | Options specific to the submenu.
 
----
-
-**Additional Properties:**
-
+#### Additional Properties
 - `ItemBackgroundImage`, `ItemImageScale`, `ItemImageYRatio`, `SubmenuIndicatorImage`, `SubmenuIndicatorSize`, `SubmenuIndicatorYRatio`, `SoundOnSelect`, `CloseOnItemClick`, `CloseOnItemRightClick`, `MirrorClickToRightClick` and all [text styling](#text-styling) settings.
-
----
-
-`Click`, `RightClick`, `CtrlClick`, `ShiftClick` and `AltClick` accept either a function object or a *predefined action*.
-
-**Predefined Actions:**
-
-- `Close`: Closes the entire menu tree.
-- `CloseMenu`: Closes only the current menu.
-
----
-
-**Special Interactions:**
-
+- `Click`, `RightClick`, `CtrlClick`, `ShiftClick` and `AltClick` accept either a function object or a *predefined action*.
 - `Ctrl + Click`: If the `CtrlClick` action is not defined, `Ctrl + Click` executes the item’s `Click` action (if defined), without closing the menu.
 
----
+### Pre-defined actions
+Proroperties like `Click`, `RightClick`, ... accepts [function object](https://www.autohotkey.com/docs/v2/misc/Functor.htm) or [callable objects](https://www.autohotkey.com/docs/v2/misc/Functor.htm#User-Defined) which will be executed on item click.
 
-**Empty Items:**
+Some of them are pre-defined for you:
+- `Close`: Closes the entire menu tree.
+- `CloseMenu`: Closes only the current menu.
+- `Dir(path)`: opens specified directory/path.
+- `App(path)`: Runs specified application/link.
+- `Cmd(cmd)`: Executes command line (hidden).
 
-- An empty object `{}` inserts a blank space in the menu, useful for spacing or alignment.
+Just pass them to the action:
+```js
+  {
+    text: 'PowerShell',
+    click: App('pwsh'),
+    rightClick: App('cmd')
+  },
+  {
+    text: 'AutoHotKey',
+    click: Dir('C:\Configs and settings\AutoHotKey'), 
+    shiftClick: Dir(A_ScriptDir)
+  },
+  {
+    text: 'Destroy',
+    click: CloseMenu  ; no arguments!
+  }
+```
 
----
+#### `Sub(menuId?, params*)`
+Creates new menu. Accepts an array of objects like the [`CreateMenu()`](#createmenumenuid-menuitems-options) method, as well as an optional unique menu name `menuId` that can be passed to other methods, such as [`SetItemImage()`](#setitemimagemenuid-itemtext-image).
 
-# Supported Image Formats
+**Usage example**:
+```js
+Radify.CreateMenu('main', [[
+  {
+    text: 'Folders',
+    image: 'C:\Users\ToYu\Pictures\icons\PNG\folder small.png',
+    ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow2.png', 
+    click: Sub(,[[   ; this submenu will be visible after Left Mouse Click on 'Folders' item
+      {
+        text: 'Docs',
+        click: Dir('C:\Users\ToYu\Documents'),
+        image: 'C:\Users\ToYu\Pictures\icons\Hemis\documents.ico'
+      },
+      {
+        text: 'Downloads',
+        click: Dir('C:\Users\ToYu\Downloads'),
+        image: 'C:\Users\ToYu\Pictures\icons\Lumicons\System\User Downloads.ico'
+      }
+    ]]),
+    rightClick: Sub(,[[  ; this submenu will be visible after Right Mouse Click on the same 'Folders' item
+      {
+        text: 'Links',
+        image: 'C:\Users\ToYu\Pictures\icons\Lumicons\System\User Links.ico',
+        click: Sub(,[[
+          {
+            text: 'Startup',
+            click: Dir('C:\Users\ToYu\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup'),
+            image: 'C:\Users\ToYu\Pictures\icons\PNG\clock_history_3.png'
+          },
+          {
+            text: 'StartMenu',
+            click: Dir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs'),
+            image: 'C:\Users\ToYu\Pictures\icons\Lumicons\System\User Links.ico'
+          }
+        ]])
+      }
+}
+```
+Using this action allows you to display different submenus for different keys, but it has some limitations:
+- The action creates an independent menu that closes any other open menus. Only one submenu can be visible at a time.
+- A tree of open submenus is not supported; use different action in the [`submenu` property](#item-object-properties) instead.
+The choice is yours: standard behavior or dynamic behavior with limitations.
 
+### Supported Image Formats
 - File path to a standard image. (`png, jpeg, jpg, ico, gif, bmp, tif`)
 - Image filename from the `/Images` folder (include the file extension, e.g., `downloads.png`).
 - Image handle (`hIcon`, `hBitmap`).
@@ -337,14 +173,33 @@ Defines the characteristics and behavior of a menu item.
     - `A_WinDir '\System32\imageres.dll|icon19'`
     - `A_ProgramFiles '\Everything\Everything.exe'`
 
----
+To change item image dynamically, call `Radify.SetItemImage(menuId, itemText, image)` inside your callback:
+```js
+MyApp(name, newImage) {
+   return (*) => (
+        Run(name), 
+        Radify.SetItemImage('main', 'PowerShell', newImage)
+    )
+}
+; . . .
+  {
+    text: 'PowerShell',        ; replace path to icons with your path!
+    click: MyApp('pwsh',     'C:\Users\ToYu\Pictures\icons\Lumicons\Terminal Powershell.ico'),
+    rightClick: MyApp('cmd', 'C:\Users\ToYu\Pictures\icons\Lumicons\Terminal cmd.ico')
+  }
+```
+You can pass this method as [bound func](https://www.autohotkey.com/docs/v2/misc/Functor.htm#BoundFunc) to the item:
+```js
+  {
+    text: 'PowerShell',
+    click: Radify.SetItemImage.Bind('main', 'PowerShell', 'C:\Users\ToYu\Pictures\icons\Lumicons\Terminal Powershell.ico')
+  }
+```
 
-# 🔧 Class Methods
+### `Radify` class methods
+This class is static, therefore you can't create an instance of Radify menu. You can access it's methods directly by calling `Radify.Method()`:
 
-Methods of the Radify class:
-
-## 🔧 `CreateMenu(MenuID, MenuItems, Options)`
-
+#### `CreateMenu(MenuID, MenuItems, Options)`
 Creates a menu with the specified ID, structure, and configuration options.
 
 | Parameter   | Type   | Description
@@ -353,10 +208,7 @@ Creates a menu with the specified ID, structure, and configuration options.
 | `MenuItems` | array  | The menu structure: an array of one or more inner arrays (rings), each containing [item objects](#item-object-properties).
 | [`Options`](#options-object-properties) | object | Configuration options for the menu.
 
----
-
-## 🔧 `Show(MenuID, AutoCenterMouse)`
-
+#### `Show(MenuID, AutoCenterMouse)`
 Shows the menu at the current mouse position.
 
 | Parameter | Type   | Description
@@ -364,10 +216,7 @@ Shows the menu at the current mouse position.
 | `MenuID`  | string | Unique identifier of the menu.
 | `AutoCenterMouse` | boolean | Centers the mouse cursor when the menu is shown.
 
----
-
-## 🔧 `Close(MenuID, SuppressSound)`
-
+#### `Close(MenuID, SuppressSound)`
 Closes the entire menu tree of the specified menu.
 
 | Parameter | Type   | Description
@@ -375,10 +224,7 @@ Closes the entire menu tree of the specified menu.
 | `MenuID`  | string | Unique identifier of the menu.
 | `SuppressSound` | boolean | Suppresses the menu close sound.
 
----
-
-## 🔧 `SetImageDir(DirPath)`
-
+#### `SetImageDir(DirPath)`
 Sets the directory for images, allowing image files to be referenced by filename only.
 Must be called before creating a menu to change the directory.
 Include the file extension when referencing image files (e.g., `downloads.png`).
@@ -387,10 +233,20 @@ Include the file extension when referencing image files (e.g., `downloads.png`).
 | --------- | ------------------- | -------------------------------------
 | `dirPath` | string \| undefined | The image directory path. If omitted, defaults to `rootDir\Images`. The path may include the `rootDir\` prefix, which refers to the directory containing `Radify.ahk`.
 
----
+#### `SetItemImage(menuId, itemText, image)`
+Updates image for existing menu item. 
 
-## 🔧 `SetSoundDir(DirPath)`
+| Parameter   | Type   | Description
+| ----------- | ------ | -------------------------------------
+| `MenuID`    | string | Unique identifier of the menu.
+| `itemText` | string  | The value of the `text` property for the item object that needs to be found in the menu.
+| `image` | string | Full path to the new image or image filename, see `SetImageDir` above.
 
+This method have some limitations:
+- The `MenuID`, target item, and its icon **must exist** before the first call to this method. 
+- The new icon will be on top of the existing one. 
+
+#### `SetSoundDir(DirPath)`
 Sets the directory for sounds, allowing sound files to be referenced by filename only.
 Must be called before creating a menu to change the directory.
 Omit the `.wav` extension when referencing sound files (e.g., `tada`).
@@ -399,14 +255,8 @@ Omit the `.wav` extension when referencing sound files (e.g., `tada`).
 | --------- | ------------------- | -------------------------------------
 | `dirPath` | string \| undefined | The sound directory path. If omitted, defaults to `rootDir\Sounds`. The path may include the `rootDir\` prefix, which refers to the directory containing `Radify.ahk`.
 
----
-
-# 🔧 Class Properties
-
-Properties of the **Radify** class:
-
-## 🔧 `LastMenuOpenInfo`
-
+### `Radify` class properties
+#### `LastMenuOpenInfo` object
 Stores information about the last opened menu. Updated each time a menu is shown via the `Show` method.
 
 | Property         | Type   | Description
@@ -416,6 +266,8 @@ Stores information about the last opened menu. Updated each time a menu is shown
 | `hwndUnderMouse` | number | HWND of the window under the mouse when the menu was opened.
 
 **Access example:**
+
+```ahk
 
     ; Toggles the always-on-top state of window
     ToggleWindowAlwaysOnTop() {
@@ -438,21 +290,13 @@ Stores information about the last opened menu. Updated each time a menu is shown
         SetTimer((*) => ToolTip(,,,19), -2500)
     }
 
----
+```
 
-## 🔧 `RootDir`
-
+#### `RootDir` string
 Stores the absolute path to the directory containing the script `Radify.ahk` or the compiled executable.    
 
----
-
-## Options Object Properties
-
-Configuration options for the menu.
-
-**Note:**
-
-Options apply only to the current menu and are not inherited by submenus, except for `skin`.
+### `Options` object properties
+Options apply to the current menu and are not inherited by submenus, except for `skin`.
 To set options for submenus, use the `SubmenuOptions` property.
 
 Menu options are merged in the following order:
@@ -460,9 +304,8 @@ Menu options are merged in the following order:
 - Skin-defined options.
 - Global default options.
 
----
 
-### 🎨 Skin & Images
+#### Skin and images
 
 | Property                | Type             | Description
 |------------------------ | ---------------- | -------------------------------------
@@ -475,9 +318,7 @@ Menu options are merged in the following order:
 | `CenterImage`           | string \| number | Image shown in the center of the menu.
 | `SubmenuIndicatorImage` | string \| number | Image indicating a submenu.
 
----
-
-### 🔊 Sounds
+#### Sounds
 
 | Property          | Type   | Description
 | ----------------- | ------ | -------------------------------------
@@ -487,14 +328,11 @@ Menu options are merged in the following order:
 | `SoundOnSubShow`  | string | Sound played when a submenu opens.
 | `SoundOnSubClose` | string | Sound played when a submenu closes.
 
-**Supported Sound Formats:**
-
+#### Supported Sound Formats
 - Path to a `.wav` file.
 - Sound filename from `C:\Windows\Media` or the `\Sounds` folder. Omit the `.wav` extension when referencing sound files (e.g., `tada`).
 
----
-
-### 📐 Layout
+#### Layout
 
 | Property                      | Type    | Description
 | ----------------------------- | ------- | -------------------------------------
@@ -511,9 +349,7 @@ Menu options are merged in the following order:
 | `ItemBackgroundImageOnCenter` | boolean | Apply item background image to the center.
 | `ItemBackgroundImageOnItems`  | boolean | Apply item background image to all menu items.
 
----
-
-### Text Styling
+#### Text Styling
 
 | Property           | Type    | Description
 | ------------------ | ------- | -------------------------------------
@@ -534,49 +370,21 @@ Menu options are merged in the following order:
 |                    |         | - 4: AntiAlias
 |                    |         | - 5: ClearTypeGridFit
 
----
-
-### 🖱️ Click Behavior
+#### Click Behavior
 
 | Property                  | Type    | Description
 |-------------------------- | ------- | -------------------------------------
 | `MirrorClickToRightClick` | boolean | Automatically assigns the `Click` action to `RightClick` for items that have a `Click` action but no `RightClick` action defined.
 
----
-
-### 🖱️ Menu Actions
-
-| Property           | Type                      | Description
-|------------------- | ------------------------- | -------------------------------------
-| `MenuClick`        | function object \| string | Action to execute when clicking the menu background.
-| `MenuRightClick`   | function object \| string | Action to execute when right-clicking the menu background.
-| `CenterClick`      | function object \| string | Action to execute when clicking the center area.
-| `CenterRightClick` | function object \| string | Action to execute when right-clicking the center area.
-
-These properties accept either a function object or a *predefined action*.
-
-**Predefined Actions:**
-
-- `Close`: Closes the entire menu tree.
-- `CloseMenu`: Closes only the current menu.
-- `Drag`: Makes the menu draggable. *Note: Dragging is only supported with left-click, not right-click.*
-
----
-
-### ⚙️ Menu Closing Behavior
+#### Menu Closing Behavior
 
 | Property                | Type    | Description
 |------------------------ | ------- | -------------------------------------
 | `CloseOnItemClick`      | boolean | Closes the entire menu tree when a menu item is clicked.
 | `CloseOnItemRightClick` | boolean | Closes the entire menu tree when a menu item is right-clicked.
 | `CloseMenuBlock`        | boolean | Prevents the menu from closing via the specific `HotIfWinExist(WinTitle)` example below. `Close(MenuID)` still works normally.
-    HotIfWinExist('RadifyGui_0_0 ahk_class AutoHotkeyGUI')
-    Hotkey('Esc', (*) => WinClose(WinExist()))
-    HotIfWinExist()
 
----
-
-### 🪟 Window & Interaction
+####  Window and Interaction
 
 | Property          | Type    | Description
 | ----------------- | ------- | -------------------------------------
@@ -584,18 +392,16 @@ These properties accept either a function object or a *predefined action*.
 | `AlwaysOnTop`     | boolean | Keeps the menu always on top.
 | `ActivateOnShow`  | boolean | Activates menu window on show.
 
----
 
-### Tooltip & Effects
+#### Tooltip and Effects
+
 | Property        | Type    | Description
 | --------------- | ------- | -------------------------------------
 | `AutoTooltip`   | boolean | Generates the tooltip text if `Tooltip` is not set, based on item text or image name.
 | `EnableTooltip` | boolean | Enables tooltips for menu items.
 | `EnableGlow`    | boolean | Enables glow effect on hover.
 
----
-
-### 🧮 Rendering
+#### 🧮 Rendering
 
 | Property            | Type   | Description
 | ------------------- | ------ | -------------------------------------
@@ -616,23 +422,14 @@ These properties accept either a function object or a *predefined action*.
 |                     |        | - 6: High Quality Bilinear
 |                     |        | - 7: High Quality Bicubic
 
----
 
-# ☕ Donate
+### Donate
 
-If you find my AHK code useful and would like to show your appreciation, any donation is greatly appreciated. Thank you!
+If you find my this fork useful and would like to show your appreciation, you can support the original author.
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/xmcqcx)
 
----
-
-# 📄 License
-
-- MIT License
-
----
-
-# 🎖️ Credits
+### Credits
 
 - [AutoHotkey](https://www.autohotkey.com) – Steve Gray, Chris Mallett, portions of the AutoIt Team, and various others.
 - [Radial menu v4](https://www.autohotkey.com/boards/viewtopic.php?f=6&t=12078) by Learning one
@@ -642,17 +439,13 @@ If you find my AHK code useful and would like to show your appreciation, any don
 - [JSON](https://github.com/thqby/ahk2_lib/blob/master/JSON.ahk) by thqby, HotKeyIt
 - Icons and [emojis](https://github.com/microsoft/fluentui-emoji) © Microsoft.
 
----
-
-**Radify**
+#### Radify
 
 - [CalculatePopupWindowPosition](https://www.autohotkey.com/boards/viewtopic.php?t=103459) by lexikos
 - [PlayWavConcurrent](https://www.autohotkey.com/boards/viewtopic.php?f=83&t=130425) by Faddix
 - [ToolTipEx](https://github.com/nperovic/ToolTipEx) by nperovic
 
----
-
-**Radify Skin Editor**
+#### Radify Skin Editor
 
 - [GuiCtrlTips](https://github.com/AHK-just-me/AHKv2_GuiCtrlTips) by just me
 - [LVGridColor](https://www.autohotkey.com/boards/viewtopic.php?f=83&t=125259) by just me
