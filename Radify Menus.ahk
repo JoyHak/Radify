@@ -66,11 +66,26 @@ Image(path, menuId, itemText, image) {
 }
 
 Sub(name := '', params*) {
-    if !name
-        name := A_Now . Random(0, 10000) . params.length
-
-    Radify.CreateMenu(name, params*)
-    return Radify.Show.Bind(Radify, name, ) 
+    lastErr := {
+        what:    'CreateMenu',
+        message: 'Provide a unique name for submenu',
+        extra:    Json.Stringify(params)
+    }
+    
+    loop 3 {
+        if !name
+            name := A_Now . Random(0, 10000) . params.length
+        try {
+            Radify.CreateMenu(name, params*)
+            return Radify.Show.Bind(Radify, name, ) 
+        } catch as e {
+            e.extra .= lastErr.extra
+            lastErr := e
+        }
+    }
+    
+    Err(lastErr)
+    Exit()
 }
 
 ShowTooltip(text, delayMs := 2000) {
