@@ -28,20 +28,34 @@ if (FileExist('History.json')) {
 
 ; ── Callbacks ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+Err(errObj) {
+    msg   := Trim(errObj.what ': ' errObj.message ' ' errObj.extra, ' :`n')
+    title := Trim('Radify - ' errObj.what, ' -')
+    
+    MsgBox(msg, title, 'iconx') 
+}
+
 Dir(path, *) => Run.Bind(path, , , , )
 App(path, *) {
     return _Run.Bind(path)
     
     _Run(path) {        
-        SplitPath(path, , , , &base)        
+        SplitPath(path, , , , &base)  
+        
         if (hwnd := WinExist('ahk_exe ' base '.exe')) {
             WinShow(hwnd)
             WinActivate(hwnd)
-        } else {
+            return
+        } 
+        
+        try {
             Run(path)            
+        } catch as e {
+            Err(e)
         }
     }
 }
+
 Cmd(cmd,  *) => Run(A_ComSpec ' /c ' cmd, , 'hide')
 
 Image(path, menuId, itemText, image) {
