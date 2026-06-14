@@ -16,7 +16,7 @@ if (!pToken := Gdip_Startup()) {
 
 if (FileExist('History.json')) {
     _file := FileOpen('History.json', 'r', 'UTF-8')
-    history := JSON_thqby_Radify.Parse(_file.Read(), false, false)
+    history := Json.Parse(_file.Read(), false, false)
     _file.Close()
 } else {
     history := {
@@ -479,7 +479,7 @@ OnTrayClick(wParam, lParam, uMsg, hWnd) {
 }
 
 OnMenuExit(exitReason := 'exit', exitCode := 0) {   
-    _history := JSON_thqby_Radify.stringify(history)
+    _history := Json.stringify(history)
     
     _file := FileOpen('History.json', 'w', 'UTF-8')
     _file.Write(_history)

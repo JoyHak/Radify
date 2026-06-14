@@ -127,7 +127,7 @@ class RadifySkinEditor {
 
         if (FileExist('Settings.json')) {
             fileObj := FileOpen('Settings.json', 'r', 'UTF-8')
-            this.user := JSON_thqby_Radify.parse(fileObj.Read(), false, false)
+            this.user := Json.parse(fileObj.Read(), false, false)
             fileObj.Close()
         }
         else this.user := {}
@@ -274,7 +274,7 @@ class RadifySkinEditor {
                     this.user.%value 'History'%.Push(item)
         }
 
-        str := JSON_thqby_Radify.stringify(this.user, unset, '  ')
+        str := Json.stringify(this.user, unset, '  ')
         objFile := FileOpen('Settings.json', 'w', 'UTF-8')
         objFile.Write(str)
         objFile.Close()
@@ -1395,7 +1395,7 @@ class RadifySkinEditor {
         if (!ObjOwnPropCount(m.skins))
             m.DeleteProp('skins')
 
-        str := JSON_thqby_Radify.stringify(m, unset, '  ')
+        str := Json.stringify(m, unset, '  ')
         objFile := FileOpen('Preferences.json', 'w', 'UTF-8')
         objFile.Write(str)
         objFile.Close()
