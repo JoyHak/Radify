@@ -182,7 +182,7 @@ Class Radify {
 
         if (FileExist(this.rootDir '\Preferences.json')) {
             fileObj := FileOpen(this.rootDir '\Preferences.json', 'r', 'UTF-8')
-            JSONobj := JSON_thqby_Radify.parse(fileObj.Read(), false, false)
+            JSONobj := Json.parse(fileObj.Read(), false, false)
             fileObj.Close()
 
             for value in ['generals', 'defaults']
@@ -1783,7 +1783,7 @@ Class Radify {
  * @date 2024/02/24
  * @version 1.0.7
  ************************************************************************************************/
-class JSON_thqby_Radify {
+class Json {
 	static null := ComValue(1, 0), true := ComValue(0xB, 1), false := ComValue(0xB, 0)
 
 	/**
