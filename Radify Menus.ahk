@@ -157,7 +157,7 @@ GetPowerImage(idx := 0) {
             }    
         }
     }
-    return 'C:\Users\ToYu\Pictures\icons\kora\battery' idx '.png'
+    return 'icons\kora\battery' idx '.png'
 }
 
 SetPowerScheme(idx, menuId?, itemText?) {
@@ -186,7 +186,7 @@ BatteryMenu(parentMenuText, targetMenuText := 'Power') {
     return {
         text:  targetMenuText,
         image: GetPowerImage(),
-        ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow0.png', 
+        ItemBackgroundImage: 'Skins\Minimal\ItemGlow0.png', 
         click: Sub(,[[schemes*]])
     }
 }
@@ -196,34 +196,34 @@ BatteryMenu(parentMenuText, targetMenuText := 'Power') {
 Radify.CreateMenu('main', [[
   {
     text: 'Folders',
-    image: 'C:\Users\ToYu\Pictures\icons\PNG\folder small.png',
-    ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow5.png', 
+    image: 'icons\PNG\folder small.png',
+    ItemBackgroundImage: 'Skins\Minimal\ItemGlow2.png', 
     click: Sub(,[[
       {
         text: 'Docs',
         click: Dir('C:\Users\ToYu\Documents'),
-        image: 'C:\Users\ToYu\Pictures\icons\Hemis\documents.ico'
+        image: 'icons\Hemis\documents.ico'
       },
       {
         text: 'Downloads',
         click: Dir('C:\Users\ToYu\Downloads'),
-        image: 'C:\Users\ToYu\Pictures\icons\Lumicons\System\User Downloads.ico'
+        image: 'icons\Lumicons\System\User Downloads.ico'
       }
     ]]),
     rightClick: Sub(,[[
       {
         text: 'Links',
-        image: 'C:\Users\ToYu\Pictures\icons\Lumicons\System\User Links.ico',
+        image: 'icons\Lumicons\System\User Links.ico',
         click: Sub(,[[
           {
             text: 'Programs x86',
             click: Dir('C:\Program Files (x86)'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\windows orb2.png'
+            image: 'icons\PNG\windows orb2.png'
           },
           {
             text: 'Programs',
             click: Dir('C:\Program Files'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\windows orb.png'
+            image: 'icons\PNG\windows orb.png'
           }
         ]])
       }
@@ -231,23 +231,23 @@ Radify.CreateMenu('main', [[
   },
   {
     text: 'Apps',
-    image: 'C:\Users\ToYu\Pictures\icons\PNG\performance monitor2.png',
-    ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow0.png',
+    image: 'icons\PNG\performance monitor2.png',
+    ItemBackgroundImage: 'Skins\Minimal\ItemGlow0.png',
     click: Sub(,[[
       {
         text: 'Theming',
-        image: 'C:\Users\ToYu\Pictures\icons\PNG\window manager UI 2.png',
-        ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow0.png',
+        image: 'icons\PNG\window manager UI 2.png',
+        ItemBackgroundImage: 'Skins\Minimal\ItemGlow0.png',
         click: Sub(,[[
           {
             text: 'MsStyleEditor',
             click: App('C:\Users\ToYu\msstyleEditor.exe'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\window manager UI 2.png'
+            image: 'icons\PNG\window manager UI 2.png'
           },
           {
             text: 'Winaero',
             click: App('C:\Program Files\Winaero Tweaker\WinaeroTweaker.exe'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\winaero.png'
+            image: 'icons\PNG\winaero.png'
           },
           {
             text: 'Windhawk',
@@ -258,119 +258,87 @@ Radify.CreateMenu('main', [[
       },
       {
         text: 'Icons',
-        image: 'C:\Users\ToYu\Pictures\icons\3D graphics_png\icon edit scale ruby.png',
-        ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow0.png',
+        image: 'icons\3D graphics_png\icon edit scale ruby.png',
+        ItemBackgroundImage: 'Skins\Minimal\ItemGlow0.png',
         click: Sub(,[[
           {
             text: 'Xyplorer',
             click: Dir('C:\Users\ToYu\XYplorer\Data\Icons'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\xyplorer small.png'
+            image: 'icons\PNG\xyplorer small.png'
           },
           {
             text: 'icons',
-            click: Dir('C:\Users\ToYu\Pictures\icons'),
-            image: 'C:\Users\ToYu\Pictures\icons\3D graphics_png\icon edit scale ruby.png'
+            click: Dir('icons'),
+            image: 'icons\3D graphics_png\icon edit scale ruby.png'
           }, 
           {
             text: 'FlatIcon',
             click: App('https://www.flaticon.com/search?word=performance&type=icon'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\flaticon.png'
+            image: 'icons\PNG\flaticon.png'
           }
         ]])
       },
       {
         text: 'Monitoring',
-        image: 'C:\Users\ToYu\Pictures\icons\PNG\performance monitor2.png',
-        ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow5.png',
+        image: 'icons\PNG\performance monitor2.png',
+        ItemBackgroundImage: 'Skins\Minimal\ItemGlow2.png',
         click: Sub(,[[
           {
             text: 'Spy',
             click: App('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Spy.lnk'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\anti_spyware.png'
+            image: 'icons\PNG\anti_spyware.png'
           },
           {
             text: 'Autoruns',
             click: App('C:\Users\ToYu\SysinternalsSuite\Autoruns64.exe'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\clock_history4.png'
+            image: 'icons\PNG\clock_history4.png'
           },
           {
             text: 'Processes',
             click: App('C:\Users\ToYu\SysinternalsSuite\Procmon64.exe'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\utilities-energy-monitor.png'
+            image: 'icons\PNG\utilities-energy-monitor.png'
           },
           {
             text: 'Explorer',
             click: App('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\System Informer.lnk'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\performance monitor2.png'
+            image: 'icons\PNG\performance monitor2.png'
           },
           {
             text: 'RegEdit',
             click: App('C:\Users\ToYu\ooregeditor\OORegEdt.exe'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\registry blocks2.png'
-          }
-        ]]), 
-        rightClick: Sub(,[[
-          {
-            text: 'Aida',
-            click: App('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\FinalWire\AIDA64 Extreme\AIDA64 Extreme.lnk'),
-            image: 'C:\Users\ToYu\Pictures\icons\Lumicons\System\Setting Control Panel.ico'
-          },
-          {
-            text: 'Devices',
-            click: App('C:\Users\ToYu\AppData\Local\Stardock\Start10Ctrlpnl\Диспетчер устройств.lnk'),
-            image: 'C:\Users\ToYu\Pictures\icons\Lumicons\System\Device Keyboard.ico'
-          },
-          {
-            text: 'Drives',
-            click: App('C:\Users\ToYu\AppData\Local\Stardock\Start10Ctrlpnl\Создание и форматирование разделов жесткого диска.lnk'),
-            image: 'C:\Users\ToYu\Pictures\icons\kora\drive-harddisk.png'
-          },
-          {
-            text: 'Control',
-            click: App('C:\Users\ToYu\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\System Tools\Control Panel.lnk'),
-            image: 'C:\Users\ToYu\Pictures\icons\Windows Icons\Control Panel.ico'
-          },
-          {
-            text: 'Services',
-            click: App('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Administrative Tools\services.lnk'),
-            image: 'C:\Users\ToYu\Pictures\icons\Lumicons\System\Services.ico'
-          },          
-          {
-            text: 'Events',
-            click: App('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Administrative Tools\Event Viewer.lnk'),
-            image: 'C:\Users\ToYu\Pictures\icons\Lumicons\System\Event Viewer.ico'
+            image: 'icons\PNG\registry blocks2.png'
           }
         ]])
       },
       {
         text: 'Drive',
-        image: 'C:\Users\ToYu\Pictures\icons\PNG\drive partition defragment tree size.png',
-        ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow0.png',
+        image: 'icons\PNG\drive partition defragment tree size.png',
+        ItemBackgroundImage: 'Skins\Minimal\ItemGlow0.png',
         click: Sub(,[[
           {
             text: 'PerfectDisk',
             click: App('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\PerfectDisk.lnk'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\drive defragmentation blocks.png'
+            image: 'icons\PNG\drive defragmentation blocks.png'
           },
           {
             text: 'Clean',
             click: App('C:\Configs and settings\PowerShell\clean_system.ps1'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\clear drive.png'
+            image: 'icons\PNG\clear drive.png'
           },
           {
             text: 'Uninstaller',
             click: App('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Revo Uninstaller Pro\Revo Uninstaller Pro.lnk'),
-            image: 'C:\Users\ToYu\Pictures\icons\ICO\erase drive.ico'
+            image: 'icons\ICO\erase drive.ico'
           },
           {
             text: 'TreeSize',
             click: App('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\TreeSize\TreeSize.lnk'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\drive partition defragment tree size.png'
+            image: 'icons\PNG\drive partition defragment tree size.png'
           },
           {
             text: 'PrimoCache',
             click: App('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\PrimoCache\PrimoCache.lnk'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\drive speed primo cache.png'
+            image: 'icons\PNG\drive speed primo cache.png'
           }
         ]])
       }
@@ -378,55 +346,55 @@ Radify.CreateMenu('main', [[
   },
   {
     text: 'Settings',
-    image: 'C:\Users\ToYu\Pictures\icons\PNG\settings_gray.png',
-    ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow5.png', 
+    image: 'icons\PNG\settings_gray.png',
+    ItemBackgroundImage: 'Skins\Minimal\ItemGlow2.png', 
     click: Sub('lSet', [[
       {
         text: 'Settings',
-        image: 'C:\Users\ToYu\Pictures\icons\PNG\settings_gray.png',
-        ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow0.png', 
+        image: 'icons\PNG\settings_gray.png',
+        ItemBackgroundImage: 'Skins\Minimal\ItemGlow0.png', 
         click: Sub(,[[
           {
             text: 'Settings',
             click: App('ms-settings:'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\settings_gray.png'
+            image: 'icons\PNG\settings_gray.png'
           }, 
           {
             text: 'Graphics',
             click: App('ms-settings:display-advancedgraphics'),
-            image: 'C:\Users\ToYu\Pictures\icons\Antu (gradient)\network-card.ico'
+            image: 'icons\Antu (gradient)\network-card.ico'
           }
         ]])
       },      
       {
         text: 'Theme',
-        image: 'C:\Users\ToYu\Pictures\icons\PNG\color-management.png',
-        ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow0.png', 
+        image: 'icons\PNG\color-management.png',
+        ItemBackgroundImage: 'Skins\Minimal\ItemGlow0.png', 
         click: Sub(,[[
           {
             text: 'Add theme',
             click: Dir('C:\Windows\Resources\Themes'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\folder colors small.png'
+            image: 'icons\PNG\folder colors small.png'
           },
           {
             text: 'Background',
             click: App('ms-settings:personalization-background'),
-            image: 'C:\Users\ToYu\Pictures\icons\3D graphics_png\image-picture-viewer.png'
+            image: 'icons\3D graphics_png\image-picture-viewer.png'
           },
           {
             text: 'Windows style',
             click: App('SystemPropertiesPerformance.exe'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\window manager UI 2.png'
+            image: 'icons\PNG\window manager UI 2.png'
           },
           {
             text: 'Change theme',
             click: App('ms-settings:themes'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\color-management.png'
+            image: 'icons\PNG\color-management.png'
           },
           {
             text: 'Trasparency',
             click: App('ms-settings:colors'),
-            image: 'C:\Users\ToYu\Pictures\icons\PNG\transparency.png'
+            image: 'icons\PNG\transparency.png'
           }
         ]])
       }, 
@@ -434,24 +402,24 @@ Radify.CreateMenu('main', [[
       {
         text: 'Restart explorer',
         click: Cmd.Bind('taskkill.exe /f /im explorer.exe & start explorer.exe'),
-        image: 'C:\Users\ToYu\Pictures\icons\PNG\Explorer.png'
+        image: 'icons\PNG\Explorer.png'
       }
     ]]), 
     rightClick: Sub(,[[
       {
         text: 'Shutdown timer',
         click: ShutdownMenu(),
-        image: 'C:\Users\ToYu\Pictures\icons\PNG\clock_history4.png'
+        image: 'icons\PNG\clock_history4.png'
       },
       {
         text: 'OS boot',
         click: Cmd.Bind('shutdown.exe -r -o -f -t 0'),
-        image: 'C:\Users\ToYu\Pictures\icons\McMuse\Dock Icon\boot.png'
+        image: 'icons\McMuse\Dock Icon\boot.png'
       },
       { ; boot into/out safe mode
         text:  history.safeMode ? 'Normal boot' : 'Safe mode',
         click: SetSafeMode.Bind(history.safeMode ? 'exit' : 'default'),
-        image: 'C:\Users\ToYu\Pictures\icons\Hemis\' . (history.safeMode ? 'warning2' : 'warning') . '.ico'
+        image: 'icons\Hemis\' . (history.safeMode ? 'warning2' : 'warning') . '.ico'
       }
     ]])
   }
