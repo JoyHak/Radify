@@ -235,9 +235,9 @@ Searches for an item in `oMenu` that satisfies `comparator` callback (i.e. `Comp
 | `comparator` | func  | Callback, that accepts `item` parameter and returns `Boolean`.
 
 #### `SetImageDir(DirPath)`
-Sets the directory for images, allowing image files to be referenced by filename only.
-Must be called before creating a menu to change the directory.
-Include the file extension when referencing image files (e.g., `downloads.png`).
+Sets the directory for images, allowing image files to be referenced by filename only.<br>
+Must be called before creating a menu to change the directory.<br>
+Include the file extension when referencing image files (e.g., `downloads.png`).<br>
 
 | Parameter | Type                | Description
 | --------- | ------------------- | -------------------------------------
@@ -257,18 +257,18 @@ This method have some limitations:
 - The new icon will be on top of the existing one. 
 
 #### `SetSoundDir(DirPath)`
-Sets the directory for sounds, allowing sound files to be referenced by filename only.
-Must be called before creating a menu to change the directory.
-Omit the `.wav` extension when referencing sound files (e.g., `tada`).
+Sets the directory for sounds, allowing sound files to be referenced by filename only.<br>
+Must be called before creating a menu to change the directory.<br>
+Omit the `.wav` extension when referencing sound files (e.g., `tada`).<br>
 
 | Parameter | Type                | Description
 | --------- | ------------------- | -------------------------------------
 | `dirPath` | string \| undefined | The sound directory path. If omitted, defaults to `rootDir\Sounds`. The path may include the `rootDir\` prefix, which refers to the directory containing `Radify.ahk`.
 
 #### `PathFind(itemText)`
-Searches for an item with specific text and displays it's location by moving user mouse.
-The function's behavior is controlled by a some of settings, that can be changed in `Radify Skin Editor.ahk`.
-To demonstrate the element's location, the mouse begins moving and opening sub-menus, including those created using the [Sub class](https://github.com/JoyHak/Radify/edit/Radially/README.md#submenuid-params).
+Searches for an item with specific text and displays it's location by moving user mouse.<br>
+The function's behavior is controlled by a some of settings, that can be changed in `Radify Skin Editor.ahk`.<br>
+To demonstrate the element's location, the mouse begins moving and opening sub-menus, including those created using the [Sub class](https://github.com/JoyHak/Radify/Radially/README.md#submenuid-params).
 
 | Parameter | Type                | Description
 | --------- | ------------------- | -------------------------------------
