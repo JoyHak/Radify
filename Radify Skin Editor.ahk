@@ -312,7 +312,7 @@ class RadifySkinEditor {
         gbWidthSkin := 315
         gbHeightSkin := 55
 
-        this.gMain.gb_skin := this.gMain.Add('GroupBox',  'w' gbWidthSkin ' h' gbHeightSkin ' cBlack', 'Skin')
+        this.gMain.gb_skin := this.gMain.Add('GroupBox',  'w' gbWidthSkin ' h' gbHeightSkin, 'Skin')
         this.gMain.ddl_skins := this.gMain.Add('DropDownList', 'xp+10 yp+20 Section vskin', this.arrSkins)
         this.gMain.ddl_skins.OnEvent('Change', this.DebounceCall.Bind(this, 125, 'gMain_ddl_skins_Change', 'skin'))
         this.gMain.btn_copySkin := this.gMain.Add('Button', 'x+5 yp-3 w' btnSize ' h' btnSize)
@@ -331,7 +331,7 @@ class RadifySkinEditor {
         gbWidthTop := 202
         gbHeightTop := 55
 
-        this.gMain.gb_top := this.gMain.Add('GroupBox', 'xm+' gbWidthSkin + this.gMain.MarginX ' ym w' gbWidthTop ' h' gbHeightTop ' cBlack')
+        this.gMain.gb_top := this.gMain.Add('GroupBox', 'xm+' gbWidthSkin + this.gMain.MarginX ' ym w' gbWidthTop ' h' gbHeightTop)
         this.gMain.btn_gList_Show := this.gMain.Add('Button', 'xp+8 yp+17 Section w' btnSize ' h' btnSize)
         this.gMain.btn_gList_Show.OnEvent('Click', this.gList_Show.Bind(this))
         GuiButtonIcon(this.gMain.btn_gList_Show, this.mIcons['removeList'], 1, 's20')
@@ -351,7 +351,7 @@ class RadifySkinEditor {
         gbWidthMisc := (gbWidthSkin + gbWidthTop + this.gMain.MarginX)
         gbHeightMisc := 370
 
-        this.gMain.gb_misc := this.gMain.Add('GroupBox',  'xm ym+' gbHeightSkin + this.gMain.MarginY ' w' gbWidthMisc ' h' gbHeightMisc ' cBlack', 'Misc.')
+        this.gMain.gb_misc := this.gMain.Add('GroupBox',  'xm ym+' gbHeightSkin + this.gMain.MarginY ' w' gbWidthMisc ' h' gbHeightMisc, 'Menu')
         this.gMain.txt_itemSize := this.gMain.Add('Text', 'xp+10 yp+25 Section +0x0100', this.gMain_GetDisplayName('itemSize') ':')
         this.gMain.edit_itemSize := this.gMain.Add('Edit', 'xs+170 yp-2 w50 vitemSize Number Limit' StrLen(Radify.range.itemSize[2]))
         this.gMain.Add('UpDown', 'Range' Radify.range.itemSize[1] '-' Radify.range.itemSize[2])
@@ -404,7 +404,7 @@ class RadifySkinEditor {
         gbWidthSound := 477
         gbHeightSound := 226
 
-        this.gMain.gb_sound := this.gMain.Add('GroupBox',  'xm ym+' gbHeightSkin + gbHeightMisc + this.gMain.MarginY*2 ' w' gbWidthSound ' h' gbHeightSound ' cBlack', 'Sound')
+        this.gMain.gb_sound := this.gMain.Add('GroupBox',  'xm ym+' gbHeightSkin + gbHeightMisc + this.gMain.MarginY*2 ' w' gbWidthSound ' h' gbHeightSound, 'Sound')
 
         for (value in Radify.arrKeysSound) {
             strText := StrReplace(this.gMain_GetDisplayName(value), 'Sound on ', '')
@@ -431,7 +431,7 @@ class RadifySkinEditor {
         gbWidthImages := 490
         gbHeightImages := 345
 
-        this.gMain.gb_image := this.gMain.Add('GroupBox',  'xm+' gbWidthMisc + this.gMain.MarginX ' ym w' gbWidthImages ' h' gbHeightImages ' cBlack', 'Image')
+        this.gMain.gb_image := this.gMain.Add('GroupBox',  'xm+' gbWidthMisc + this.gMain.MarginX ' ym w' gbWidthImages ' h' gbHeightImages, 'Image')
 
         for value in ['itemGlowImage', 'menuOuterRimImage', 'menuBackgroundImage', 'itemBackgroundImage', 'centerBackgroundImage'] {
             this.gMain.pic_%value%:= this.gMain.Add('Picture', (A_Index = 1 ? 'xp+10 yp+25 Section' : 'xp+87') ' w75 h75 vpic' value ' +Border +0x0100')
@@ -466,7 +466,7 @@ class RadifySkinEditor {
         gbWidthText := 302
         gbHeightText := 315
 
-        this.gMain.gb_text := this.gMain.Add('GroupBox',  'xm+' gbWidthMisc + this.gMain.MarginX ' ym+' gbHeightImages + this.gMain.MarginY ' w' gbWidthText ' h' gbHeightText ' cBlack', 'Text')
+        this.gMain.gb_text := this.gMain.Add('GroupBox',  'xm+' gbWidthMisc + this.gMain.MarginX ' ym+' gbHeightImages + this.gMain.MarginY ' w' gbWidthText ' h' gbHeightText, 'Text')
         this.gMain.pic_preview := this.gMain.Add('Picture', 'w' this.picWidth ' h' this.picHeight ' xp+10 yp+25 Section +Border')
         this.gMain.txt_textFont := this.gMain.Add('Text', 'xs +0x0100', 'Font:')
         this.gMain.ddl_textFont := this.gMain.Add('DropDownList', 'xs+40 yp-2 w240 vtextFont', this.arrTextFont)
@@ -520,7 +520,7 @@ class RadifySkinEditor {
         gbHeightRendering := 86
 
         this.gMain.gb_rendering := this.gMain.Add('GroupBox',  'xm+' gbWidthMisc + gbWidthText + this.gMain.MarginX*2 ' ym+' gbHeightImages + this.gMain.MarginY
-            ' w' gbWidthRendering ' h' gbHeightRendering ' cBlack', 'Rendering')
+            ' w' gbWidthRendering ' h' gbHeightRendering, 'Rendering')
         this.gMain.txt_smoothingMode := this.gMain.Add('Text', 'xp+8 yp+28 Section +0x0100', 'Smoothing Mode:')
         this.gMain.ddl_smoothingMode := this.gMain.Add('DropDownList', 'xs+116 yp-2 w40 vsmoothingMode', this.arrSmoothingMode)
         this.gMain.txt_interpolationMode := this.gMain.Add('Text', 'xs +0x0100', 'Interpolation Mode:')
@@ -1161,7 +1161,6 @@ class RadifySkinEditor {
         this.gSkin.Opt('+Resize +MinSize540x525')
         this.gSkin.OnEvent('Size', this.gSkin_Size.Bind(this))
         this.gSkin.SetFont('s10')
-        this.gSkin.BackColor := 'White'
         this.gSkin.Tips := GuiCtrlTips(this.gSkin)
         this.gSkin.Tips.SetDelayTime('AUTOPOP', 30000)
         try this.gMain.Opt('+Disabled')
@@ -1173,7 +1172,7 @@ class RadifySkinEditor {
         gbWidth := (skin = 'default' ? 500 : 328)
         this.gSkin.gbHeight := 60
 
-        this.gSkin.gb_skin := this.gSkin.Add('GroupBox',  'w' gbWidth ' h' this.gSkin.gbHeight ' cBlack', (skin = 'default' ? '' : '    Skin'))
+        this.gSkin.gb_skin := this.gSkin.Add('GroupBox',  'w' gbWidth ' h' this.gSkin.gbHeight, (skin = 'default' ? '' : '    Skin'))
         skin = 'default' ? (picPos := 'xp+8 yp+25', editPos := 'x+6 yp-2') : (picPos := 'xs+6 ys+1', editPos := 'xp+6 yp+22')
         this.gSkin.pic_edit := this.gSkin.Add('Picture', picPos ' w16 h16 ' (skin = 'default' ? 'Section': '') , this.mIcons['btn_edit'])
         this.gSkin.edit_skinName := this.gSkin.Add('Edit', editPos ' w165 h23 -wrap', skin)
@@ -1579,7 +1578,7 @@ class RadifySkinEditor {
         gbWidthDir := 393
         gbHeightDir := 93
 
-        this.gDir.gb_dir := this.gDir.Add('GroupBox',  'w' gbWidthDir ' h' gbHeightDir ' cBlack Section')
+        this.gDir.gb_dir := this.gDir.Add('GroupBox',  'w' gbWidthDir ' h' gbHeightDir ' Section')
         this.gDir.gb_dir.SetFont('bold')
         this.gDir.Add('Text', 'xs xp+10 yp+25 Section', 'Images:')
         this.gDir.edit_imagesDir := this.gDir.Add('Edit', 'xs+60 yp-2 w250 h23 -wrap vimagesDir', Radify.generals.imagesDir)
@@ -2059,7 +2058,6 @@ class RadifySkinEditor {
 
         this.gAbout := Gui('-MinimizeBox', 'About - ' this.scriptName)
         this.gAbout.SetFont('s10')
-        this.gAbout.BackColor := 'White'
         try this.gMain.Opt('+Disabled')
         try this.gAbout.Opt('+Owner' this.gMain.hwnd)
 
@@ -2094,7 +2092,7 @@ class RadifySkinEditor {
         this.gAbout.Add('Text', 'x+5', 'by Descolada. (from UIATreeInspector.ahk)')
         this.gAbout.Add('Link', 'xs yp+30', '<a href="https://www.autohotkey.com/board/topic/66235-retrieving-the-fontname-and-fontsize-of-a-gui-control">Control_GetFont</a>')
         this.gAbout.Add('Text', 'x+5', 'by SKAN, swagfag.')
-
+        
         gAboutWidth := 550, btnWidth := 120, btnHeight := 35
         btnPosX := gAboutWidth/2 - btnWidth/2
         this.gAbout.btn_close := this.gAbout.Add('Button', 'x' btnPosX ' yp+30 w' btnWidth ' h' btnHeight ' Default', 'Close')
