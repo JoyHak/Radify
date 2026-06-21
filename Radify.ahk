@@ -16,7 +16,19 @@ Class Radify {
         this.menus := {}
         this.scriptName := 'Radify'
         this.isValidConfiguration := true
-        this.lastMenuOpenInfo := {mouseX: unset, mouseY: unset, hwndUnderMouse: unset}
+
+        this.lastMenuOpenInfo := {
+            mouseX: 0, 
+            mouseY: 0,
+            hwndUnderMouse: 0, 
+            id: '',
+        }
+        
+        this.lastFoundInfo := {
+            itemText: '', 
+            menuId: '',
+        }
+        
         this.PI := 3.141592653589793
 
         this.defaults := {
@@ -34,6 +46,7 @@ Class Radify {
             itemGlowImage: 'ItemGlow.png',
             submenuIndicatorImage: 'SubmenuIndicator.png',
             centerImage: 'CenterImage.png',
+            speedPathFind: 50,
             outerRimWidth: 6,
             outerRingMargin: 25,
             submenuIndicatorSize: 12,
@@ -44,10 +57,14 @@ Class Radify {
             menuRightClick: 'Close',
             centerClick: 'Drag',
             centerRightClick: 'Close',
+            rootPathFind: '<open>',
             closeOnItemClick: true,
             closeOnItemRightClick: true,
             closeMenuBlock: false,
             mirrorClickToRightClick: false,
+            savePathFindItem: true,
+            casePathFind: false,
+            strictPathFind: false,
             autoCenterMouse: true,
             alwaysOnTop: true,
             activateOnShow: false,
@@ -106,8 +123,11 @@ Class Radify {
             textRendering: [0, 5],
             textShadowOffset: [0, 5],
             textBoxScale: [0.5, 1],
-            textYRatio: [0, 1]
+            textYRatio: [0, 1], 
+            mouseSpeed: [0, 100]
         }
+        
+        this.range.speedPathFind := this.range.mouseSpeed
 
         this.generals := {
             imagesDir: 'RootDir\Images',
@@ -980,7 +1000,7 @@ Class Radify {
         }
         return false
     }
-		
+    
 	/*********************************************************************************************
     * Updates image for existing menu item.
     * @param {string} menuId - Unique identifier of the menu.
@@ -991,28 +1011,215 @@ Class Radify {
         if (!this.menus.HasOwnProp(menuId))
             return this.ShowErrorMsg(A_ThisFunc ' - Menu not found.', menuId)
         
-        oMenu := this.menus.%menuId%
+        oMenu := this.menus.%menuId%        
+        if !(item := this.FindItem(oMenu, (i) => (i.text = itemText)))
+            return this.ShowErrorMsg(A_ThisFunc ' - Item not found: "' itemText '".', menuId)
+            
+        item.image  := image
+        item.pImage := this.LoadImage(item.image, oMenu.SkinDir)
         
+        if (!item.pImage)
+            return this.ShowErrorMsg(A_ThisFunc ' - Unable to load image: "' image '".', menuId)
+        
+        Gdip_DrawImage(oMenu.G, item.pImage, item.imgX, item.imgY, item.imgSize, item.imgSize)
+        Gdip_DisposeImage(item.pImage)
+        UpdateLayeredWindow(oMenu.hwnd, oMenu.hdc, 0, 0, oMenu.scaledSize, oMenu.scaledSize)
+        
+        return true
+    }
+    
+    /**
+     * Searches for an item in `oMenu` that satisfies `comparator` callback.
+     * @param {object} oMenu - Menu object.
+     * @param {func} comparator - Callback, that accepts `item` parameter and returns `Boolean`.
+     */
+    static FindItem(oMenu, comparator) {
         for ring in oMenu.rings {
             for item in ring.items {
-                if (item.text != itemText)
-                    continue
-                
-                item.image  := image
-                item.pImage := this.LoadImage(item.image, oMenu.SkinDir)
-                
-                if (!item.pImage)
-                    return this.ShowErrorMsg(A_ThisFunc ' - Unable to load image: "' image '".', menuId)
-                
-                Gdip_DrawImage(oMenu.G, item.pImage, item.imgX, item.imgY, item.imgSize, item.imgSize)
-                Gdip_DisposeImage(item.pImage)
-                UpdateLayeredWindow(oMenu.hwnd, oMenu.hdc, 0, 0, oMenu.scaledSize, oMenu.scaledSize)
-                
-                return true
+                if comparator(item)
+                    return item
             }
         }
-        return this.ShowErrorMsg(A_ThisFunc ' - Item not found: "' itemText '".', menuId)
+        return false
     }
+    
+    /**
+     * Searches for an item with specific text and displays it's location by moving user mouse.
+     * @param {text} itemText - The value of the `text` property for the item/menu object that needs to be found in the menu.
+     * @remark Can find any item, menu or sub-menu with specified `itemText`.
+     * @remark The function's behavior is controlled by a set of settings. 
+     * @remark To demonstrate the element's location, the mouse begins moving and opening sub-menus, 
+     * including those created using the `Sub` class. 
+     */
+    static PathFind(itemText := this.lastFoundInfo.itemText, *) {          
+        points := []
+        FindPoint(oMenu, comparator) {
+            if !(i := this.FindItem(oMenu, comparator))
+                return 0
+            
+            if !(i.HasOwnProp('pointClick'))
+                i.pointClick := 'click'
+                
+            points.Push({
+                x: i.relX, 
+                y: i.relY, 
+                id: oMenu.id,
+                click: i.pointClick 
+            })
+            
+            return oMenu.id
+        }
+        
+        Compare(haystack, needle, caseSensitive := false) {
+            return (caseSensitive && haystack == needle) 
+               || (!caseSensitive && haystack = needle)
+        }
+        
+        ; Find target item
+        targetMenuId := 0
+        for _, oMenu in this.menus.OwnProps() {
+            caseSensitive := oMenu.options.casePathFind
+            if (targetMenuId := FindPoint(oMenu, (i) => Compare(i.text, itemText, caseSensitive)))
+                break
+        }
+        
+        if !targetMenuId
+            return this.ShowErrorMsg(A_ThisFunc ' - Item not found: "' itemText '".')
+        
+        ; Traverse path from target item to the root
+        s := this.menus.%targetMenuId%.options
+        
+        switch s.rootPathFind, false {
+        case '<root>':
+            rootMenuId := ''  ; traverse the entire chain while it's possible
+        case '<open>':
+            rootMenuId := this.lastMenuOpenInfo.id
+        case '<last>':
+            rootMenuId := this.lastFoundInfo.menuId
+        default:
+            rootMenuId := s.rootPathFind
+        }
+        
+        curMenuId := targetMenuId
+        
+        TraverseTarget:
+        loop {
+            if (curMenuId = rootMenuId)
+                break TraverseTarget
+            
+            curMenu := this.menus.%curMenuId%
+            if (curMenu.parentMenuId) {
+                ; Find point in parent menu
+                parentMenu := this.menus.%curMenu.parentMenuId%
+                if (id := FindPoint(parentMenu, (i) => Compare(i.submenuId,  curMenuId, s.casePathFind))) {
+                    curMenuId := id
+                    continue TraverseTarget
+                }
+            }
+
+            for _, oMenu in this.menus.OwnProps() {
+                ; Find point in Sub properties
+                IsSub(item) {
+                    for key in ['click', 'rightClick', 'shiftClick', 'altClick', 'ctrlClick'] {
+                        if (item.%key% is Sub) && Compare(item.%key%.menuId, curMenuId, s.casePathFind) {
+                            item.pointClick := key
+                            return true
+                        }
+                    }
+                    return false
+                }
+                
+                if (id := FindPoint(oMenu, IsSub)) {
+                    curMenuId := id
+                    continue TraverseTarget
+                }
+            }
+
+            break TraverseTarget
+        }
+        
+        rootId := points[-1].id
+        if (rootId != rootMenuId && s.strictPathFind)
+            return this.ShowErrorMsg(A_ThisFunc ' - Item "' itemText '" not found in the Menus starting from root "' rootMenuId '".', rootId)
+            
+        ; Show found root, place mouse in the center
+        this.Show(rootId, true)
+        if !WinWaitActive('RadifyGui ahk_class AutoHotkeyGUI', , 3)
+            return this.ShowErrorMsg('Cannot find item "' itemText '": root menu refused to render', rootId)
+
+        ; Move mouse through found points
+        index := points.length
+        mouseSpeed := 100 - s.speedPathFind
+        
+        loop points.length {
+            p := points[index--]
+            MouseMove(p.x, p.y, mouseSpeed, 'R')
+
+            if (index = 0)
+                break
+            
+            switch p.click, false {
+            case 'click': 
+                SendEvent('{Click}')
+            case 'rightClick': 
+                SendEvent('{Click Right}')
+            case 'shiftClick': 
+                SendEvent('{Shift down}{Click}{Shift up}')
+            case 'altClick': 
+                SendEvent('{Alt down}{Click}{Alt up}')
+            case 'ctrlClick':
+                SendEvent('{Ctrl down}{Click}{Ctrl up}')
+            }
+        }
+        
+        ; Save data for future search
+        this.lastFoundInfo := {
+            itemText: itemText,
+            menuId:   targetMenuId,
+        }
+    }
+    
+    /**
+     * Displays search window for {@link Radify.PathFind}
+     */
+    static AskPathFind(*) {
+        s := this.menus.%this.lastMenuOpenInfo.id%.options
+
+        ; Hide border, buttons, titlebar
+        ui := Gui('-E0x200 -SysMenu +DPIScale', A_Space)
+        ui.SetFont(
+            Format(
+                'c{} s{} q{}', 
+                s.textColor, s.textSize, s.textRendering
+            ), 
+            s.textFont
+        )
+        
+        ui.OnEvent('Close',   (*) => ui.Destroy())
+        ui.OnEvent('Escape',  (*) => ui.Destroy())
+        
+        ui.AddText(, 'Item to find:')
+        
+        eSize := s.textSize * 14
+        itemText := ui.AddEdit('x+m yp-4 -wrap w' eSize)
+        if s.savePathFindItem
+            itemText.value := this.lastFoundInfo.itemText
+            
+        itemText.Focus()
+        
+        bSize := s.textSize * 3
+        ui.AddButton('x+m yp-4 -wrap +default w' bSize ' h' bSize, '=>')
+          .OnEvent('Click', (*) => (ui.Submit(), this.PathFind(itemText.value)))
+        
+        ui.Show('hide')
+        ui.GetPos(, , &width, &height)
+        
+        centerX := Round(this.lastMenuOpenInfo.mouseX - width  / 2)
+        centerY := Round(this.lastMenuOpenInfo.mouseY - height / 2)
+        
+        ui.Show('x' centerX ' y' centerY)
+    }
+    
     ;=============================================================================================
 
     static GetMousePositionInfo(oMenu)
@@ -1162,7 +1369,7 @@ Class Radify {
      * @param {string} menuId - Unique identifier of the menu.
      * @param {boolean} autoCenterMouse - Center mouse cursor when showing menu.
      */
-    static Show(menuId, autoCenterMouse?)
+    static Show(menuId, autoCenterMouse?, *)
     {
         if (!this.menus.HasOwnProp(menuId))
             return this.ShowErrorMsg(A_ThisFunc ' - Menu not found: "' menuId '".')
@@ -1177,8 +1384,16 @@ Class Radify {
 
         CoordMode('Mouse', 'Screen')
         MouseGetPos(&mouseX, &mouseY, &hwndUnderMouse)
-        this.lastMenuOpenInfo := {mouseX: mouseX, mouseY: mouseY, hwndUnderMouse: hwndUnderMouse}
+        
+        this.lastMenuOpenInfo := {
+            mouseX: mouseX, 
+            mouseY: mouseY,
+            hwndUnderMouse: hwndUnderMouse, 
+            id: menuId
+        }
+        
         this.ShowAt(oMenu, mouseX, mouseY, autoCenterMouse?)
+        HotKey('^f', this.AskPathFind.Bind(this), 'On')
     }
 
     ;=============================================================================================
@@ -1240,6 +1455,7 @@ Class Radify {
             this.DeregisterHoverHandlers(oMenu)
 
         this.DeregisterClickHandlers(oMenu)
+        HotKey('^f', this.AskPathFind.Bind(this), 'Off')
     }
 
     ;=============================================================================================
