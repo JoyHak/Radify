@@ -8,10 +8,12 @@ The fork of the radial menu launcher with multi-ring layouts, submenus and inter
 - **Minimalistic theme:** only solid gray without borders, shadows and neon colors.
 ![right click](https://github.com/user-attachments/assets/cc97b125-64ef-4cd1-808a-b3e9f4e98e72)
 
-- **One-Level submenus:** requires muscle memory only. No more visual searching. Inspired by [Kando mouse gestures](https://kando.menu/usage/#-turbo-mode).
+- **Multi-Level submenus:** requires muscle memory only. No more visual searching. Inspired by [Kando mouse gestures](https://kando.menu/usage/#-turbo-mode).
 - **Auto-close on losing focus:** if you opened wrong menu, just press `Esc` or click anywhere to close the menu.
 - **Change icons:** let the menu inform you about any state *(currently new one overlaps old one so its suitable only for changing colors)*. See `settings menu -> battery icons` or `safe mode`.
 ![icons](https://github.com/user-attachments/assets/0d213539-495f-4942-90af-6180f2dea360)
+- **Find items:** if you lost some item in the nested menus, just press `Ctrl+F` and enter it's name. Radify will guide your mouse through the menus.
+![path find](https://github.com/user-attachments/assets/68b2491a-9537-4ca4-a180-ec83b3030bba)
 
 ## Quick start
 
@@ -224,6 +226,14 @@ Closes the entire menu tree of the specified menu.
 | `MenuID`  | string | Unique identifier of the menu.
 | `SuppressSound` | boolean | Suppresses the menu close sound.
 
+#### `FindItem(oMenu, comparator)`
+Searches for an item in `oMenu` that satisfies `comparator` callback (i.e. `Comparator()` call returns `true`).
+
+| Parameter   | Type   | Description
+| ----------- | ------ | -------------------------------------
+| `oMenu`    | object | Menu object.
+| `comparator` | func  | Callback, that accepts `item` parameter and returns `Boolean`.
+
 #### `SetImageDir(DirPath)`
 Sets the directory for images, allowing image files to be referenced by filename only.
 Must be called before creating a menu to change the directory.
@@ -254,6 +264,15 @@ Omit the `.wav` extension when referencing sound files (e.g., `tada`).
 | Parameter | Type                | Description
 | --------- | ------------------- | -------------------------------------
 | `dirPath` | string \| undefined | The sound directory path. If omitted, defaults to `rootDir\Sounds`. The path may include the `rootDir\` prefix, which refers to the directory containing `Radify.ahk`.
+
+#### `PathFind(itemText)`
+Searches for an item with specific text and displays it's location by moving user mouse.
+The function's behavior is controlled by a some of settings, that can be changed in `Radify Skin Editor.ahk`.
+To demonstrate the element's location, the mouse begins moving and opening sub-menus, including those created using the [Sub class](https://github.com/JoyHak/Radify/edit/Radially/README.md#submenuid-params).
+
+| Parameter | Type                | Description
+| --------- | ------------------- | -------------------------------------
+| `itemText` | string | The value of the `text` property for the item object that needs to be found in the menu.
 
 ### `Radify` class properties
 #### `LastMenuOpenInfo` object
