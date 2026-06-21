@@ -1,3 +1,6 @@
+#Include lib\Gdip_All.ahk
+#Include lib\Sub.ahk
+
 /*********************************************************************************************
  * Radify - A radial menu launcher with multi-ring layouts, submenus and interactive items.
  * @author Martin Chartier (XMCQCX)
@@ -377,11 +380,21 @@ Class Radify {
 
     static ShowErrorMsg(errorMsg, menuId?)
     {
-        errorMsg .= '`n`nDetails:'
-        errorMsg .= (IsSet(menuId) ? '`n- Menu: "' menuId '"' : '')
-        errorMsg .= '`n- Script: "' A_ScriptFullPath '"'
+        errorMsg .= '`n`nDetails:`n- Menu: "'
+        errorMsg .= menuId ?? this.lastMenuOpenInfo.id
+        errorMsg .= '"`n- Script: "' A_ScriptFullPath '"'
         MsgBox(errorMsg, this.scriptName ' - Error', 'Iconx')
         return false
+    }
+    
+    static OnError(errObj, menuId?) {
+        this.ShowErrorMsg(
+            Trim(
+                errObj.what ': ' errObj.message ' ' errObj.extra, 
+                ' :`n'
+            ), 
+            menuId?
+        )
     }
 
     ;=============================================================================================
@@ -1383,7 +1396,7 @@ Class Radify {
 
         this.RefreshTooltipZOrder(oMenu)
 
-        if (action is Func)
+        if (action.HasMethod('Call'))
             action.Call()
 
         ;==============================================

@@ -2,13 +2,12 @@
 #SingleInstance
 
 #Include Radify.ahk
-#Include .\Lib\Gdip_All.ahk
-#Include .\Lib\Notify.ahk
-#Include .\Lib\GuiCtrlTips.ahk
-#Include .\Lib\LV_GridColor.ahk
-#Include .\Lib\GuiButtonIcon.ahk
-#Include .\Lib\ColorPicker.ahk
-#Include .\Lib\Color.ahk
+#Include lib\Notify.ahk
+#Include lib\GuiCtrlTips.ahk
+#Include lib\LV_GridColor.ahk
+#Include lib\GuiButtonIcon.ahk
+#Include lib\ColorPicker.ahk
+#Include lib\Color.ahk
 
 ;==============================================
 

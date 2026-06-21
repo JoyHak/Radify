@@ -1,7 +1,6 @@
 #Requires AutoHotkey v2.0
 #SingleInstance
 
-#Include .\Lib\Gdip_All.ahk
 #Include Radify.ahk
 #Include C:\Configs and settings\AutoHotKey\hotkeys\Lib\messages.ahk
 
@@ -28,13 +27,6 @@ if (FileExist('History.json')) {
 
 ; ── Callbacks ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-Err(errObj) {
-    msg   := Trim(errObj.what ': ' errObj.message ' ' errObj.extra, ' :`n')
-    title := Trim('Radify - ' errObj.what, ' -')
-    
-    MsgBox(msg, title, 'iconx') 
-}
-
 Dir(path, *) => Run.Bind(path, , , , )
 App(path, *) {
     return _Run.Bind(path)
@@ -51,7 +43,7 @@ App(path, *) {
         try {
             Run(path)            
         } catch as e {
-            Err(e)
+            Radify.OnError(e)
         }
     }
 }
@@ -63,29 +55,6 @@ Image(path, menuId, itemText, image) {
         Run(path), 
         Radify.SetItemImage(menuId, itemText, image)
     )
-}
-
-Sub(name := '', params*) {
-    lastErr := {
-        what:    'CreateMenu',
-        message: 'Provide a unique name for submenu',
-        extra:    Json.Stringify(params)
-    }
-    
-    loop 3 {
-        if !name
-            name := A_Now . Random(0, 10000) . params.length
-        try {
-            Radify.CreateMenu(name, params*)
-            return Radify.Show.Bind(Radify, name, ) 
-        } catch as e {
-            e.extra .= lastErr.extra
-            lastErr := e
-        }
-    }
-    
-    Err(lastErr)
-    Exit()
 }
 
 ShowTooltip(text, delayMs := 2000) {
