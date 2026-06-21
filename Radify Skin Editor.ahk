@@ -57,6 +57,7 @@ class RadifySkinEditor {
         this.arrSkins.InsertAt(1, 'Default')
         this.arrClick := ['None', 'Close', 'CloseMenu', 'Drag']
         this.arrRightClick := ['None', 'Close', 'CloseMenu']
+        this.arrMenuPlaceholders := ['<open>', '<last>', '<root>']
         this.strKeysSoundPipeDelim := this.ArrayToString(Radify.arrKeysSound, '|')
         this.arrkeysImage := this.ObjectToArray(Radify.imageKeyToFileName)
         this.strKeysImagePipeDelim := this.ArrayToString(this.arrkeysImage, '|')
@@ -79,6 +80,8 @@ class RadifySkinEditor {
             ['Submenu Indicator Y Ratio', 'submenuIndicatorYRatio'],
             ['Outer Ring Margin', 'outerRingMargin'],
             ['Outer Rim Width', 'outerRimWidth'],
+            ['Find Item starting from', 'rootPathFind'],
+            ['Mouse Speed in Find Item', 'speedPathFind'],
             ['Menu Click', 'menuClick'],
             ['Menu Right-Click', 'menuRightClick'],
             ['Center Click', 'centerClick'],
@@ -93,6 +96,9 @@ class RadifySkinEditor {
             ['Enable Glow', 'enableGlow'],
             ['Auto Tooltip', 'autoTooltip'],
             ['Auto-Center Mouse', 'autoCenterMouse'],
+            ['Save last Found Item', 'savePathFindItem'],
+            ['Case-sensitive Find Item', 'casePathFind'],
+            ['Strict Find Item', 'strictPathFind'],
             ['Mirror Click to Right-Click', 'mirrorClickToRightClick'],
             ['Enable Item Text', 'enableItemText'],
             ['Item Background Image on Center', 'itemBackgroundImageOnCenter'],
@@ -348,9 +354,9 @@ class RadifySkinEditor {
         GuiButtonIcon(this.gMain.btn_donate, this.mIcons['buymeacoffee'], 1, 's20')
 
         gbWidthMisc := (gbWidthSkin + gbWidthTop + this.gMain.MarginX)
-        gbHeightMisc := 370
+        gbHeightMisc := 490
 
-        this.gMain.gb_misc := this.gMain.Add('GroupBox',  'xm ym+' gbHeightSkin + this.gMain.MarginY ' w' gbWidthMisc ' h' gbHeightMisc, 'Menu')
+        this.gMain.gb_misc := this.gMain.Add('GroupBox',  'xm ym+' gbHeightSkin + this.gMain.MarginY ' w' gbWidthMisc ' h' gbHeightMisc, 'Misc.')
         this.gMain.txt_itemSize := this.gMain.Add('Text', 'xp+10 yp+25 Section +0x0100', this.gMain_GetDisplayName('itemSize') ':')
         this.gMain.edit_itemSize := this.gMain.Add('Edit', 'xs+170 yp-2 w50 vitemSize Number Limit' StrLen(Radify.range.itemSize[2]))
         this.gMain.Add('UpDown', 'Range' Radify.range.itemSize[1] '-' Radify.range.itemSize[2])
@@ -378,21 +384,31 @@ class RadifySkinEditor {
         this.gMain.edit_outerRimWidth := this.gMain.Add('Edit', 'xs+170 yp-2 w50 vouterRimWidth Number Limit' StrLen(Radify.range.outerRimWidth[2]))
         this.gMain.Add('UpDown', 'Range' Radify.range.outerRimWidth[1] '-' Radify.range.outerRimWidth[2])
         this.gMain.edit_outerRimWidth.OnEvent('Change', this.DebounceCall.Bind(this, 125, 'gMain_ClampToMaximum_Change', 'outerRimWidth'))
-        this.gMain.cb_enableTooltip := this.gMain.Add('CheckBox', 'xs venableTooltip', ' ' this.gMain_GetDisplayName('enableTooltip'))
-        this.gMain.cb_enableGlow := this.gMain.Add('CheckBox', 'xs+115 yp venableGlow', ' ' this.gMain_GetDisplayName('enableGlow'))
-        this.gMain.cb_autoTooltip := this.gMain.Add('CheckBox', 'xs vautoTooltip', ' ' this.gMain_GetDisplayName('autoTooltip'))
-        this.gMain.cb_autoCenterMouse := this.gMain.Add('CheckBox', 'xs+115 yp vautoCenterMouse', ' ' this.gMain_GetDisplayName('autoCenterMouse'))
-        this.gMain.txt_menuClick := this.gMain.Add('Text', 'xs+265 ys Section +0x0100', this.gMain_GetDisplayName('menuClick') ':')
-        this.gMain.ddl_menuClick := this.gMain.Add('DropDownList', 'xs+120 yp-2 w100 vmenuClick', this.arrClick)
+        this.gMain.txt_speedPathFind := this.gMain.Add('Text', 'xs +0x0100', this.gMain_GetDisplayName('speedPathFind') ':')
+        this.gMain.edit_speedPathFind := this.gMain.Add('Edit', 'xs+170 yp-2 w50 vspeedPathFind Number Limit' StrLen(Radify.range.mouseSpeed[2]))
+        this.gMain.Add('UpDown', 'Range' Radify.range.mouseSpeed[1] '-' Radify.range.mouseSpeed[2])
+        this.gMain.edit_speedPathFind.OnEvent('Change', this.DebounceCall.Bind(this, 125, 'gMain_ClampToMaximum_Change', 'speedPathFind'))
+        
+        this.gMain.txt_rootPathFind := this.gMain.Add('Text', 'xs +0x0100', this.gMain_GetDisplayName('rootPathFind') ':')
+        this.gMain.combox_rootPathFind := this.gMain.Add('ComboBox', 'xs+170 yp-2 w100 vrootPathFind', this.arrMenuPlaceholders)
+        this.gMain.txt_menuClick := this.gMain.Add('Text', 'xs +0x0100', this.gMain_GetDisplayName('menuClick') ':')
+        this.gMain.ddl_menuClick := this.gMain.Add('DropDownList', 'xs+170 yp-2 w100 vmenuClick', this.arrClick)
         this.gMain.txt_menuRightClick := this.gMain.Add('Text', 'xs +0x0100', this.gMain_GetDisplayName('menuRightClick') ':')
-        this.gMain.ddl_menuRightClick := this.gMain.Add('DropDownList', 'xs+120 yp-2 w100 vmenuRightClick', this.arrRightClick)
+        this.gMain.ddl_menuRightClick := this.gMain.Add('DropDownList', 'xs+170 yp-2 w100 vmenuRightClick', this.arrRightClick)
         this.gMain.txt_centerClick := this.gMain.Add('Text', 'xs +0x0100', this.gMain_GetDisplayName('centerClick') ':')
-        this.gMain.ddl_centerClick := this.gMain.Add('DropDownList', 'xs+120 yp-2 w100 vcenterClick', this.arrClick)
+        this.gMain.ddl_centerClick := this.gMain.Add('DropDownList', 'xs+170 yp-2 w100 vcenterClick', this.arrClick)
         this.gMain.txt_centerRightClick := this.gMain.Add('Text', 'xs +0x0100', this.gMain_GetDisplayName('centerRightClick') ':')
-        this.gMain.ddl_centerRightClick := this.gMain.Add('DropDownList', 'xs+120 yp-2 w100 vcenterRightClick', this.arrRightClick)
-
-        for setting in ['closeOnItemClick', 'closeOnItemRightClick', 'closeMenuBlock', 'mirrorClickToRightClick', 'enableItemText', 'itemBackgroundImageOnCenter',
-            'itemBackgroundImageOnItems', 'alwaysOnTop', 'activateOnShow', 'hideOnLoseFocus']
+        this.gMain.ddl_centerRightClick := this.gMain.Add('DropDownList', 'xs+170 yp-2 w100 vcenterRightClick', this.arrRightClick)
+        
+        this.gMain.cb_enableGlow := this.gMain.Add('CheckBox', 'xs+285 ys Section venableGlow', ' ' this.gMain_GetDisplayName('enableGlow'))
+        
+        for setting in ['enableItemText', 'enableTooltip', 
+            'autoTooltip', 'autoCenterMouse', 
+            'itemBackgroundImageOnCenter', 'itemBackgroundImageOnItems', 
+            'alwaysOnTop', 'activateOnShow', 'hideOnLoseFocus', 
+            'closeOnItemClick', 'closeOnItemRightClick', 'closeMenuBlock', 
+            'mirrorClickToRightClick', 
+            'savePathFindItem', 'casePathFind', 'strictPathFind']
             this.gMain.cb_%setting% := this.gMain.Add('CheckBox', 'xs v' setting, ' ' this.gMain_GetDisplayName(setting))
 
         this.gMain.pic_miscInfo := this.gMain.Add('Picture', 'xs-218 ys-24 w15 h15 +0x0100', this.mIcons['iSmall'])
@@ -528,10 +544,16 @@ class RadifySkinEditor {
         this.gMain.btn_resetRendering := this.gMain.Add('Button', 'xs+' gbWidthRendering - 41 ' ys-30 w22 h22')
         this.gMain.btn_resetRendering.OnEvent('Click', this.gMain_btn_resetRendering_Click.Bind(this))
         GuiButtonIcon(this.gMain.btn_resetRendering, this.mIcons['reset'], 1, 's12')
-        this.gMain.btn_exit := this.gMain.Add('Button', 'xm+' gbWidthMisc + gbWidthText + this.gMain.MarginX*5 ' ym+' gbHeightImages + gbHeightText - this.gMain.MarginY*16 ' w100 h100', 'Exit')
+        
+        this.gMain.btn_apply := this.gMain.Add('Button', 'xm+' gbWidthMisc + gbWidthText + this.gMain.MarginX*5 ' ym+' gbHeightImages + gbHeightText - this.gMain.MarginY*19 ' w100 h50')
+        this.gMain.btn_apply.SetFont('bold')
+        this.gMain.btn_apply.OnEvent('Click', this.gMain_btnApply_Click.Bind(this))
+        GuiButtonIcon(this.gMain.btn_apply, this.mIcons['floppy'], 1, 's40')
+        
+        this.gMain.btn_exit := this.gMain.Add('Button', 'xm+' gbWidthMisc + gbWidthText + this.gMain.MarginX*5 ' ym+' gbHeightImages + gbHeightText - this.gMain.MarginY*11 ' w100 h50')
         this.gMain.btn_exit.SetFont('bold')
         this.gMain.btn_exit.OnEvent('Click', (*) => ExitApp())
-        GuiButtonIcon(this.gMain.btn_exit, this.mIcons['exitBig'], 1, 's45 a2 t18 l2')
+        GuiButtonIcon(this.gMain.btn_exit, this.mIcons['exitBig'], 1, 's40')
 
         this.DDLChoose(this.user.skin, this.arrSkins, this.gMain.ddl_skins)
         this.gMain['soundOnSelection'].Value := this.user.soundOnSelection
@@ -606,6 +628,8 @@ class RadifySkinEditor {
             ['txt_submenuIndicatorYRatio', '➤ SubmenuIndicatorYRatio - Y-position of submenu icon (' Radify.range.submenuIndicatorYRatio[1] '-' Radify.range.submenuIndicatorYRatio[2] ').'],
             ['txt_outerRimWidth', '➤ OuterRimWidth - Width of outer rim (' Radify.range.outerRimWidth[1] '-' Radify.range.outerRimWidth[2] ' px).'],
             ['txt_outerRingMargin', '➤ OuterRingMargin - Margin between the outermost ring and the edge of the menu (' Radify.range.outerRingMargin[1] '-' Radify.range.outerRingMargin[2] ' px).'],
+            ['txt_speedPathFind', '➤ FindItemSpeed - Mouse movement speed during Find Item (' Radify.range.mouseSpeed[1] '-' Radify.range.mouseSpeed[2] '). 0 = slow, 99 = fast, 100 = instant'],
+            ['txt_rootPathFind', '➤ FindItemFrom - The name of the Menu from which the Find Item starts.'],
             ['cb_alwaysOnTop', '➤ AlwaysOnTop - Keeps the menu always on top.'],
             ['cb_activateOnShow', '➤ ActivateOnShow - Activates menu window on show.'],
             ['cb_hideOnLoseFocus', '➤ HideOnLoseFocus - Hides menu window when focus is lost.'],
@@ -613,6 +637,9 @@ class RadifySkinEditor {
             ['cb_enableGlow', '➤ EnableGlow - Enables glow effect on hover.'],
             ['cb_autoTooltip', '➤ AutoTooltip - Generates the tooltip text if "Tooltip" is not set, based on item text or image name.'],
             ['cb_autoCenterMouse', '➤ AutoCenterMouse - Centers the mouse cursor when the menu is shown.'],
+            ['cb_savePathFindItem', '➤ SaveFoundItem - Saves the name of the last Found Item and displays it during the next search.'],
+            ['cb_casePathFind', '➤ CaseSensPathFind - Find Item compares uppercase and lowercase letters in Item Text.'],
+            ['cb_strictPathFind', '➤ StrictPathFind - If the Item is not found in the chain starting from the root, an error will occur.'],
             ['txt_menuClick', '➤ MenuClick - Action to execute when clicking the menu background.'],
             ['txt_menuRightClick', '➤ MenuRightClick - Action to execute when right-clicking the menu background.'],
             ['txt_centerClick', '➤ CenterClick - Action to execute when clicking the center area.'],
@@ -707,7 +734,7 @@ class RadifySkinEditor {
 
         this.UpdateControls([this.user.skin])
         this.gMain.Show()
-        try ControlFocus(this.gMain.btn_exit.hwnd, this.gMain.hwnd)
+        try ControlFocus(this.gMain.btn_apply.hwnd, this.gMain.hwnd)
     }
 
     ;=============================================================================================
@@ -892,15 +919,24 @@ class RadifySkinEditor {
 
     static gMain_SetMisc(skin, skinObj)
     {
-        for key in ['activateOnShow', 'hideOnLoseFocus', 'alwaysOnTop', 'autoCenterMouse', 'autoTooltip', 'centerSize', 'closeOnItemClick',
-        'closeOnItemRightClick', 'mirrorClickToRightClick', 'enableGlow', 'enableTooltip', 'itemBackgroundImageOnCenter',
-        'itemBackgroundImageOnItems', 'itemSize', 'outerRingMargin', 'outerRimWidth' , 'closeMenuBlock', 'enableItemText', 'submenuIndicatorSize']
+        for key in ['activateOnShow', 'hideOnLoseFocus', 
+            'alwaysOnTop', 'autoCenterMouse', 'autoTooltip', 'centerSize', 
+            'closeOnItemClick', 'closeOnItemRightClick', 'mirrorClickToRightClick', 
+            'enableGlow', 'enableTooltip', 
+            'savePathFindItem', 'casePathFind', 'strictPathFind',
+            'itemBackgroundImageOnCenter', 'itemBackgroundImageOnItems', 'itemSize', 
+            'outerRingMargin', 'outerRimWidth', 'speedPathFind',  
+            'closeMenuBlock', 'enableItemText', 'submenuIndicatorSize']
             this.gMain[key].Value := skinObj.%key%
 
         for key in ['menuClick', 'menuRightClick', 'centerClick', 'centerRightClick']
             this.DDLchoose(skinObj.%key%, this.arrClick, this.gMain.ddl_%key%)
+            
+        if !this.DDLchoose(skinObj.rootPathFind, this.arrMenuPlaceholders, this.gMain.combox_rootPathFind)
+            this.gMain.combox_rootPathFind.Text := skinObj.rootPathFind
 
-        for key in ['itemImageScale', 'radiusScale', 'centerImageScale', 'itemImageYRatio', 'submenuIndicatorYRatio']
+        for key in ['itemImageScale', 'radiusScale', 'centerImageScale', 
+            'itemImageYRatio', 'submenuIndicatorYRatio']
             this.gMain[key].Value := Round(skinObj.%key%, 2)
     }
 
@@ -1306,7 +1342,44 @@ class RadifySkinEditor {
     }
 
     ;=============================================================================================
+    
+    static gMain_btnApply_Click(*) 
+    {
+        guiValues := this.gMain.Submit(false)
+        skin := guiValues.skin
 
+        if (skin = 'default')
+            Radify.defaults.skin := skin
+        
+        for (settings in this.arrSettings) {
+            key := settings[2]
+
+            switch key, false {
+            case 'textFontOptions': 
+                value := this.BuildFontOptionsString()
+            default: 
+                value := Radify.range.HasOwnProp(key) 
+                      ? Radify.ClampValue(guiValues.%key%, key) 
+                      : guiValues.%key%
+            }
+            
+            if (skin = 'default') {
+                 Radify.defaults.%key% := value
+                 continue
+            }
+            
+            Radify.skins.%skin%.%key% := value
+            
+            if (!this.HasVal(key, Radify.skins.%skin%.skinOptionKeys) && Radify.defaults.%key% != value)
+                Radify.skins.%skin%.skinOptionKeys.Push(key)
+        }
+
+        this.ResetValues(Radify.skins.%skin%, skin, '')
+        this.SaveToJSONpreferences()
+        
+        this.ShowNotify('Settings Updated', 'The settings have been updated.')
+    }
+    
     static gSkin_btnOK_btnApply_Click(skin, ctrlObj, *)
     {
         if (ctrlObj.Text == 'OK' && !this.gSkin.btn_apply.Enabled) {
@@ -1385,7 +1458,6 @@ class RadifySkinEditor {
                         m.skins.%skin%.%k% := skinObj.%k%
             }
         }
-
         for skin, skinObj in m.skins.Clone().OwnProps()
             if (!ObjOwnPropCount(skinObj))
                 m.skins.DeleteProp(skin)
@@ -2091,6 +2163,8 @@ class RadifySkinEditor {
         this.gAbout.Add('Text', 'x+5', 'by Descolada. (from UIATreeInspector.ahk)')
         this.gAbout.Add('Link', 'xs yp+30', '<a href="https://www.autohotkey.com/board/topic/66235-retrieving-the-fontname-and-fontsize-of-a-gui-control">Control_GetFont</a>')
         this.gAbout.Add('Text', 'x+5', 'by SKAN, swagfag.')
+        this.gAbout.Add('Link', 'xs yp+30', '<a href="https://github.com/JoyHak/Radify#submenuid-params">Sub (sub-menu generator)</a>')
+        this.gAbout.Add('Text', 'x+5', 'by Rafaello.')
         
         gAboutWidth := 550, btnWidth := 120, btnHeight := 35
         btnPosX := gAboutWidth/2 - btnWidth/2
