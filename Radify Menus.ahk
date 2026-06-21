@@ -19,7 +19,6 @@ if (FileExist('History.json')) {
     _file.Close()
 } else {
     history := {
-        safeMode: false, 
         shutdownTimer: false,
         powerScheme: '',
     }
@@ -79,29 +78,9 @@ ShutdownMenu(limit := 12) {
     return (*) => m.Show()
 }
 
-SetSafeMode(mode := 'default') {
-    history.safeMode := true
-    
-    switch mode, false {
-        case 'default':
-            vbs := 'SafeMode'            
-        case 'net', 'network':
-            vbs := 'SafeModeNetworking'
-        case 'cmd', 'command', 'prompt':   
-            vbs := 'SafeModeCommandPrompt'
-        case 'exit', 'normal':
-            vbs := 'SafeModeNormalMode'
-            history.safeMode := false
-        default:
-            history.safeMode := false
-            return Radify.ShowErrorMsg(A_ThisFunc ' - Unknown safe mode: "' mode '".')
-    }
-
-    Cmd('wscript.exe "C:\ProgramData\WinaeroTweaker\' vbs '.vbs"')
-}
-
 ; ── Power Scheme ───────────────────────────────────────────────────────────────────────────────────────────────────
 
+; Use powercfg /list or powercfg /getactivescheme to get your power schemes
 powerSchemes := [
   {
     id: '2b253980-fc5d-471a-8a6f-406a2315c9de', 
@@ -126,7 +105,7 @@ GetPowerImage(idx := 0) {
             }    
         }
     }
-    return 'icons\kora\battery' idx '.png'
+    return 'icons\battery' idx '.png'
 }
 
 SetPowerScheme(idx, menuId?, itemText?) {
@@ -181,16 +160,15 @@ Radify.CreateMenu('main', [[
     ]]),
     rightClick: Sub(,[[
       {
-        text: 'Links',
-        image: 'icons\links.ico',
-        click: Sub(,[[
-          {
-            text: 'Programs',
-            click: Dir('C:\Program Files'),
-            image: 'icons\win.ico'
-          }
-        ]])
-      }
+        text: 'Programs',
+        click: Dir('C:\Program Files'),
+        image: 'icons\win.ico'
+      },
+      {
+        text: 'Temp',
+        click: Dir(A_Temp),
+        image: 'icons\trash.ico'
+      },
     ]])
   },
   {
@@ -264,11 +242,6 @@ Radify.CreateMenu('main', [[
         text: 'OS boot',
         click: Cmd.Bind('shutdown.exe -r -o -f -t 0'),
         image: 'icons\boot.png'
-      },
-      { ; boot into/out safe mode
-        text:  history.safeMode ? 'Normal boot' : 'Safe mode',
-        click: SetSafeMode.Bind(history.safeMode ? 'exit' : 'default'),
-        image: 'icons\' . (history.safeMode ? 'warning1' : 'warning0') . '.ico'
       }
     ]])
   }
