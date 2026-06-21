@@ -121,6 +121,7 @@ Just pass them to the action:
 ```
 
 #### `Sub(menuId?, params*)`
+<a name="sub"></a>
 Creates new menu. Accepts an array of objects like the [`CreateMenu()`](#createmenumenuid-menuitems-options) method, as well as an optional unique menu name `menuId` that can be passed to other methods, such as [`SetItemImage()`](#setitemimagemenuid-itemtext-image).
 
 **Usage example**:
@@ -268,7 +269,7 @@ Omit the `.wav` extension when referencing sound files (e.g., `tada`).<br/>
 #### `PathFind(itemText)`
 Searches for an item with specific text and displays it's location by moving user mouse.<br/>
 The function's behavior is controlled by a some of settings, that can be changed in `Radify Skin Editor.ahk`.<br/>
-To demonstrate the element's location, the mouse begins moving and opening sub-menus, including those created using the [Sub class](https://github.com/JoyHak/Radify/blob/Radially/README.md#submenuid-params)
+To demonstrate the element's location, the mouse begins moving and opening sub-menus, including those created using the [Sub class](https://github.com/JoyHak/Radify/blob/Radially/README.md#sub)
 
 | Parameter | Type                | Description
 | --------- | ------------------- | -------------------------------------
