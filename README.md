@@ -19,20 +19,7 @@ The fork of the radial menu launcher with multi-ring layouts, submenus and inter
 
 Radify **is not standalone application**! It is fast GDIP library that can be included in [AutoHotkey scripts](https://www.autohotkey.com/docs/v2/index.htm), i.e. you need to know [how to write on AutoHotkey v2.0+](https://www.autohotkey.com/docs/v2/Language.htm)
 
-If you're already familiar with this language you want to use this menu:
-
-1. Download my [icons](https://drive.google.com/drive/folders/12Zp8vIvtqpUsaJbYuWgyfNvbjYEuOzjt) (~1 GB) because they are not a part of menu theme. There's multiple icons designed by me especially for Radify, like Spy...
-<img width="2065" height="712" alt="icons" src="https://github.com/user-attachments/assets/7ee9e6c1-f938-4366-aaf7-91a8329a8783" />
-
-You navigate through them using [Flow Launcher](https://github.com/Flow-Launcher/Flow.Launcher).
-
-2. Open the file named `Radify Menus.ahk`.
-
-3. Replace all `C:\\Users\\ToYu\\Pictures\\icon` with path to your downloaded `icons` folder.
-
-4. Add `Hotkey('$LWin',  (*) => Radify.Show('main'))` at the end (because I'm activating it from another script). Change `LWin` to your hotkey if you wish.
-
-5. Launch it.
+If you're already familiar with this language - open [Radify Menus.ahk](Radify Menus.ahk) and create new menus with the documentation help below.
 
 *Changing power scheme won't work on your machine that's just demo*. To enable this option, you need to retrieve GUIDs of your powerschemes and [add them here](https://github.com/JoyHak/Radify/blob/27ad9bac673ff7c8fd7855da89c0c027543f957c/Radify%20Menus.ahk#L90):
 ```cmd
@@ -41,7 +28,7 @@ powercfg /list
 ## Documentation
 ### `Item` object properties
 
-To create a new menu you need array of objects:
+To create a new menu you need an array of objects:
 
 ```js
 Radify.CreateMenu('main', [[
