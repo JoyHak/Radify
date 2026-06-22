@@ -19,12 +19,8 @@ The fork of the radial menu launcher with multi-ring layouts, submenus and inter
 
 Radify **is not standalone application**! It is fast GDIP library that can be included in [AutoHotkey scripts](https://www.autohotkey.com/docs/v2/index.htm), i.e. you need to know [how to write on AutoHotkey v2.0+](https://www.autohotkey.com/docs/v2/Language.htm)
 
-If you're already familiar with this language - open [Radify Menus.ahk](Radify Menus.ahk) and create new menus with the documentation help below.
+If you're already familiar with this language - open [Radify Menus.ahk](Radify%20Menus.ahk) and create new menus with the help of documentation below.
 
-*Changing power scheme won't work on your machine that's just demo*. To enable this option, you need to retrieve GUIDs of your powerschemes and [add them here](https://github.com/JoyHak/Radify/blob/27ad9bac673ff7c8fd7855da89c0c027543f957c/Radify%20Menus.ahk#L90):
-```cmd
-powercfg /list
-```
 ## Documentation
 ### `Item` object properties
 
