@@ -1056,15 +1056,15 @@ Class Radify {
         FindPoint(oMenu, comparator) {
             if !(i := this.FindItem(oMenu, comparator))
                 return 0
-            
-            if !(i.HasOwnProp('pointClick'))
+             
+            if (!i.HasOwnProp('pointClick'))
                 i.pointClick := 'click'
-                
+            
             points.Push({
                 x: i.relX, 
                 y: i.relY, 
-                id: oMenu.id,
-                click: i.pointClick 
+                click: i.pointClick,
+                oMenu: oMenu,
             })
             
             return oMenu.id
@@ -1087,7 +1087,7 @@ Class Radify {
             return this.ShowErrorMsg(A_ThisFunc ' - Item not found: "' itemText '".')
         
         ; Traverse path from target item to the root
-        s := this.menus.%targetMenuId%.options
+        s := points[-1].oMenu.options
         
         switch s.rootPathFind, false {
         case '<root>':
@@ -1111,26 +1111,27 @@ Class Radify {
             if (curMenu.parentMenuId) {
                 ; Find point in parent menu
                 parentMenu := this.menus.%curMenu.parentMenuId%
-                if (id := FindPoint(parentMenu, (i) => Compare(i.submenuId,  curMenuId, s.casePathFind))) {
-                    curMenuId := id
+                if (menuId := FindPoint(parentMenu, (i) => Compare(i.submenuId, curMenuId, s.casePathFind))) {
+                    curMenuId := menuId
                     continue TraverseTarget
                 }
             }
-
-            for _, oMenu in this.menus.OwnProps() {
-                ; Find point in Sub properties
-                IsSub(item) {
-                    for key in ['click', 'rightClick', 'shiftClick', 'altClick', 'ctrlClick'] {
-                        if (item.%key% is Sub) && Compare(item.%key%.menuId, curMenuId, s.casePathFind) {
-                            item.pointClick := key
-                            return true
-                        }
+            
+            ; Find point by click, rightClick, ... item property
+            IsSub(item) {
+                for key in ['click', 'rightClick', 'shiftClick', 'altClick', 'ctrlClick'] {
+                    if (item.%key% is Sub) 
+                     && Compare(item.%key%.menuId, curMenuId, s.casePathFind) {
+                        item.pointClick := key
+                        return true
                     }
-                    return false
                 }
-                
-                if (id := FindPoint(oMenu, IsSub)) {
-                    curMenuId := id
+                return false
+            }
+            
+            for _, oMenu in this.menus.OwnProps() {
+                if (menuId := FindPoint(oMenu, IsSub)) {
+                    curMenuId := menuId
                     continue TraverseTarget
                 }
             }
@@ -1138,7 +1139,7 @@ Class Radify {
             break TraverseTarget
         }
         
-        rootId := points[-1].id
+        rootId := points[-1].oMenu.id
         if (rootId != rootMenuId && s.strictPathFind)
             return this.ShowErrorMsg(A_ThisFunc ' - Item "' itemText '" not found in the Menus starting from root "' rootMenuId '".', rootId)
             
@@ -1158,6 +1159,13 @@ Class Radify {
             if (index = 0)
                 break
             
+            tipId := ToolTip(
+                p.click, 
+                p.oMenu.prevTooltipX, 
+                p.oMenu.prevTooltipY + 30, 
+                0xb
+            )
+            
             switch p.click, false {
             case 'click': 
                 SendEvent('{Click}')
@@ -1170,7 +1178,11 @@ Class Radify {
             case 'ctrlClick':
                 SendEvent('{Ctrl down}{Click}{Ctrl up}')
             }
+            
+            WinSetAlwaysOnTop(true, tipId)
         }
+        
+        ToolTip(,,, 0xb)
         
         ; Save data for future search
         this.lastFoundInfo := {
