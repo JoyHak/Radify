@@ -1213,7 +1213,7 @@ Class Radify {
         ui.AddText(, 'Item to find:')
         
         eSize := s.textSize * 14
-        itemText := ui.AddEdit('x+m yp-4 -wrap w' eSize)
+        itemText := ui.AddEdit('x+m yp-4 -wrap vitem w' eSize)
         if s.savePathFindItem
             itemText.value := this.lastFoundInfo.itemText
             
@@ -1221,7 +1221,7 @@ Class Radify {
         
         bSize := s.textSize * 3
         ui.AddButton('x+m yp-4 -wrap +default w' bSize ' h' bSize, '=>')
-          .OnEvent('Click', (*) => (ui.Submit(), this.PathFind(itemText.value)))
+          .OnEvent('Click', OnClick)
         
         ui.Show('hide')
         ui.GetPos(, , &width, &height)
@@ -1229,7 +1229,15 @@ Class Radify {
         centerX := Round(this.lastMenuOpenInfo.mouseX - width  / 2)
         centerY := Round(this.lastMenuOpenInfo.mouseY - height / 2)
         
+        this.PlaySound(s.soundOnShow)
         ui.Show('x' centerX ' y' centerY)
+        
+        
+        OnClick(*) {
+            this.PlaySound(s.soundOnClose)
+            val := ui.Submit()
+            this.PathFind(val.item)
+        }
     }
     
     ;=============================================================================================
