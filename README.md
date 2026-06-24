@@ -12,6 +12,9 @@ The fork of the radial menu launcher with multi-ring layouts, submenus and inter
 - **Auto-close on losing focus:** if you opened wrong menu, just press `Esc` or click anywhere to close the menu.
 - **Change icons:** let the menu inform you about any state *(currently new one overlaps old one so its suitable only for changing colors)*. See `settings menu -> battery icons` or `safe mode`.
 ![icons](https://github.com/user-attachments/assets/0d213539-495f-4942-90af-6180f2dea360)
+
+<a href="path-find"></a>
+  
 - **Find items:** if you lost some item in the nested menus, just press `Ctrl+F` and enter it's name. Radify will guide your mouse through the menus.
 ![path find](https://github.com/user-attachments/assets/68b2491a-9537-4ca4-a180-ec83b3030bba)
 
