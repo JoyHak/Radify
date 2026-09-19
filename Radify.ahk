@@ -18,6 +18,7 @@ Class Radify {
         this.menus := {}
         this.scriptName := 'Radify'
         this.isValidConfiguration := true
+        this.indentationLevel := 2
 
         this.lastMenuOpenInfo := {
             mouseX: 0, 
@@ -72,6 +73,8 @@ Class Radify {
             activateOnShow: false,
             hideOnLoseFocus: false,
             autoTooltip: true,
+            autoTooltipStructure: true,
+            autoTooltipTextFirst: true,
             enableTooltip: true,
             enableGlow: true,
             enableItemText: true,
@@ -120,6 +123,7 @@ Class Radify {
             enableTooltip: [0, 1],
             enableGlow: [0, 1],
             autoTooltip: [0, 1],
+            autoTooltipStructure: [0, 1],
             enableItemText: [0, 1],
             textSize: [5, 100],
             textRendering: [0, 5],
@@ -339,7 +343,7 @@ Class Radify {
      * @param {array} menuItems - The menu structure: an array of one or more inner arrays (rings), each containing item objects.
      * @param {object} options - Configuration options for the menu.
      */
-    static CreateMenu(menuId?, menuItems?, options := {})
+    static CreateMenu(menuId?, menuItems?, options?)
     {
         if (!this.isValidConfiguration)
             return
@@ -358,8 +362,10 @@ Class Radify {
 
         if (menuItems.Length = 0 || !this.IsArrayOfArrays(menuItems))
             return this.ShowErrorMsg('Parameter #2 of CreateMenu requires an Array of one or more inner arrays (rings), each containing item objects.', menuId)
-
-        if (Type(options) != 'Object')
+        
+        if !IsSet(options)
+            options := {}
+        else if (Type(options) != 'Object')
             return this.ShowErrorMsg('Parameter #3 of CreateMenu requires an Object. Received: ' Type(options) '.', menuId)
 
         newMenuIds := []
@@ -409,10 +415,10 @@ Class Radify {
         return false
     }
     
-    static OnError(errObj, menuId?) {
+    static OnError(e, menuId?) {
         this.ShowErrorMsg(
             Trim(
-                errObj.what ': ' errObj.message ' ' errObj.extra, 
+                e.what ' [L' e.line ']: ' e.message ' ' e.extra, 
                 ' :`n'
             ), 
             menuId?
@@ -424,7 +430,7 @@ Class Radify {
     static OnMenuCreationFailure(menuId, e)
     {
         this.CleanupMenu(menuId)
-        errorMsg := 'Failed to create menu: "' menuId '". ' e.Message '`n- Script: "' A_ScriptFullPath '"'
+        errorMsg := 'Failed to create menu "' menuId '" [L' e.line ']. ' e.Message '`n- Script: "' A_ScriptFullPath '"'
         MsgBox(errorMsg, this.scriptName ' - Error', 'Iconx')
         return false
     }
@@ -578,29 +584,35 @@ Class Radify {
         ]
 
         for (key in arrkeys) {
-            if (menuItem.HasOwnProp(key))
-                item.%key% := this.range.HasOwnProp(key) ? this.ClampValue(menuItem.%key%, key) : menuItem.%key%
-            else if (oMenu.options.HasOwnProp(key))
+            if (menuItem.HasOwnProp(key)) {
+                item.%key% := this.range.HasOwnProp(key) 
+                            ? this.ClampValue(menuItem.%key%, key) 
+                            : menuItem.%key%
+            } else if (oMenu.options.HasOwnProp(key)) {
                 item.%key% := oMenu.options.%key%
+            }
+        }
+        
+        for key, action in this.EnumerateActions(menuItem, []) {
+            if (action != 'drag')
+                item.%key% := action
+        }
+        
+        for key, action in this.EnumerateActions(menuItem, ['hotkey', 'hotstring']) {
+            item.%key% := action
         }
 
-        for key in ['click', 'rightClick', 'shiftClick', 'altClick', 'ctrlClick']
-            item.%key% := ((menuItem.HasOwnProp(key) && menuItem.%key% != 'drag') ? menuItem.%key% : '')
-
-        for key in ['image', 'text', 'tooltip', 'hotkeyClick', 'hotkeyRightClick', 'hotkeyShiftClick', 'hotkeyAltClick', 'hotkeyCtrlClick',
-                    'hotstringClick', 'hotstringRightClick', 'hotstringShiftClick', 'hotstringAltClick', 'hotstringCtrlClick']
-            item.%key% := ((menuItem.HasOwnProp(key)) ? menuItem.%key% : '')
-
-        if (item.mirrorClickToRightClick && item.click && !item.rightClick)
-            item.rightClick := item.click
-
-        if (oMenu.options.autoTooltip && !menuItem.HasOwnProp('tooltip')) {
-            if (item.text)
-                item.tooltip := item.text
-            else if (item.image) {
-                SplitPath(item.image,,,, &nameNoExt)
-                item.tooltip := nameNoExt
+        for key in ['image', 'text', 'tooltip'] {
+            if (menuItem.HasOwnProp(key) && menuItem.%key%) {
+                item.%key% := menuItem.%key%
             }
+        }
+        
+        if (item.HasOwnProp('mirrorClickToRightClick') 
+         && item.mirrorClickToRightClick 
+         && !item.HasOwnProp('rightClick')
+         && item.HasOwnProp('click')) {
+            item.rightClick := item.click
         }
 
         item.textFontOptions := this.NormalizeFontOptions(item.textFontOptions)
@@ -627,7 +639,7 @@ Class Radify {
                 for key, value in menuItem.submenuOptions.OwnProps()
                     submenuOptions.%key% := value
 
-            if (item.image && !submenuOptions.HasOwnProp('centerImage'))
+            if (item.HasOwnProp('image') && !submenuOptions.HasOwnProp('centerImage'))
                 submenuOptions.centerImage := item.image
 
             if (!submenuOptions.HasOwnProp('skin'))
@@ -637,11 +649,146 @@ Class Radify {
             submenuOptions.soundOnClose := (submenuOptions.HasOwnProp('soundOnClose') ? submenuOptions.soundOnClose : oMenu.options.soundOnSubClose)
             this.ProcessMenu(submenuId, arrSubmenu, submenuOptions, newMenuIds, menuId)
         }
+        
+        
+        if (oMenu.options.autoTooltip && !item.HasOwnProp('tooltip')) {
+            if (oMenu.options.autoTooltipStructure) {
+                item.tooltip := ''
+                if (item.HasOwnProp('text')) {
+                    item.tooltip .= item.text '`n'
+                }
+                item.tooltip .= this.ItemToString(item)
+            } else {
+                if (item.HasOwnProp('text')) {
+                    item.tooltip := item.text
+                } else if (item.HasOwnProp('image')) {
+                    SplitPath(item.image,,,, &nameNoExt)
+                    item.tooltip := nameNoExt
+                }
+            }
+        }
 
         return item
     }
-
-    ;=============================================================================================
+    
+    /**
+     * Enumerates trigger actions ("click", "rightClick", etc.)
+     * @param {object} menuItem - Objects that represents menu item
+     * @param {array<string>} prefix - Additional keyword before action name. `unset` = default prefixes. `empty` = no prefixes.
+     * @param {array<string>} trigger - Action name. `unset` = default triggers. `empty` = empty @return.
+     * @param {bool} firstOnly - Append only first found action.
+     * @returns {map} `{string} name -> {func} action` pairs
+     */
+    static EnumerateActions(menuItem, prefix := ['', 'hotkey', 'hotstring'], trigger := ['click', 'right', 'shift', 'alt', 'ctrl'], firstOnly := false) 
+    {
+        actions := Map()
+        if (!prefix || !prefix.length)
+            prefix := ['']
+        
+        for pref in prefix {
+            for trig in trigger {
+                if (trig = 'click')
+                    trig := ''      
+                
+                key := pref . trig . 'Click'
+                if (menuItem.HasOwnProp(key) && menuItem.%key%) {
+                    actions.Set(key, menuItem.%key%)
+                     if firstOnly
+                        return actions
+                }            
+            }
+        }
+        
+        return actions           
+    }
+    
+    /**
+     * Converts item actions into string.
+     * @param {object} menuItem - Objects that represents menu item
+     * @param {bool} firstActionOnly - Append only first found action: 'click', 'rightClick', etc.
+     * @returns {string} `action: {String}` pairs
+     */
+    static ItemToString(menuItem, firstActionOnly := false) 
+    {
+        str := ''
+        for key, action in this.EnumerateActions(menuItem,,, firstActionOnly) {
+            if (s := String(action))
+                str .= key ': ' s '`n'
+        }
+        
+        if (!(firstActionOnly && str) 
+         && menuItem.HasOwnProp('submenuId')
+         && menuItem.submenuId) {
+            str .= this.SubMenuToString(menuItem.submenuId)
+        }
+        
+        return Trim(str, ' `n')
+    }
+    
+    /**
+     * Converts menu actions into string.
+     * @param {string} menuId - Unique identifier of the menu.
+     * @param {bool} firstActionOnly - Append only first found action for each item: 'click', 'rightClick', etc.
+     * @param {integer} limit - Max. items limit in the string. `-1` means "all items".
+     */
+    static MenuToString(menuId, firstActionOnly := false, limit := 2) 
+    {
+        if (!this.menus.HasOwnProp(menuId))
+            return this.ShowErrorMsg(A_ThisFunc ' - Menu not found.', menuId)
+        if (!(limit is Integer) || ((limit < 0) && (limit != -1)))
+            return this.ShowErrorMsg(A_ThisFunc ' - Max. items limit must be an Integer: ' limit, menuId)   
+            
+        if (limit = 0) {
+            return 'menu "' menuId '"'
+        }
+            
+        oMenu := this.menus.%menuId%
+        str := ''
+        
+        static level := 0
+        padMenu := Format('{:' level '}', '')
+        level += this.indentationLevel
+        padItem := Format('{:' level '}', '')
+        
+        for ring in oMenu.menuItems {
+            for item in ring {
+                for key, action in this.EnumerateActions(item,,, firstActionOnly) {
+                    if (s := String(action))
+                        str .= '`n' . padItem . s
+                }
+                
+                if (!(firstActionOnly && str) 
+                 && item.HasOwnProp('submenuId')
+                 && item.submenuId) {
+                    str .= this.SubMenuToString(item.submenuId)
+                }
+                
+                if (A_Index = limit) {
+                    break
+                }
+            }
+        }
+        
+        if !str {
+            str := ' (empty)'
+        }
+        
+        level -= this.indentationLevel
+        return padMenu . 'menu "' menuId '"' str
+    }
+    
+    static SubMenuToString(menuId) 
+    {
+        static level := 0
+        if (++level > 1) {
+            level := 0
+            return ''
+        }
+        
+        s := Radify.MenuToString(menuId, true, 2)
+        level--
+        return s
+    }
 
     static LoadSkinImages(oMenu)
     {
@@ -739,7 +886,7 @@ Class Radify {
                         Gdip_DisposeImage(pItemBackgroundImage)
                 }
 
-                if (item.image) {
+                if (item.HasOwnProp('image')) {
                     item.pImage := this.LoadImage(item.image, oMenu.skinDir)
 
                     if (item.pImage) {
@@ -767,7 +914,7 @@ Class Radify {
                     }
                 }
 
-                if (item.enableItemText && item.text) {
+                if (item.enableItemText && item.HasOwnProp('text')) {
                     textBoxWidth := Round(item.itemSize * item.textBoxScale)
                     textBoxHeight := Round(item.itemSize * item.textBoxScale)
                     argbColor := 'ff' item.textColor
@@ -1121,9 +1268,9 @@ Class Radify {
             
             ; Find point by click, rightClick, ... item property
             IsSub(item) {
-                for key in ['click', 'rightClick', 'shiftClick', 'altClick', 'ctrlClick'] {
-                    if (item.%key% is Sub) 
-                     && Compare(item.%key%.menuId, curMenuId, s.casePathFind) {
+                for key, action in this.EnumerateActions(item, []) {
+                    if ((action is Sub)
+                     && Compare(action.menuId, curMenuId, s.casePathFind)) {
                         item.pointClick := key
                         return true
                     }
@@ -1153,20 +1300,22 @@ Class Radify {
         ; Move mouse through found points
         index := points.length
         mouseSpeed := 100 - s.speedPathFind
-        
+        CoordMode('Mouse', 'Screen')
+            
         loop points.length {
             p := points[index--]
+            
+            ; Disable tooltip temporary to avoid distraction
+            lastEnableTooltip := p.oMenu.options.enableTooltip
+            p.oMenu.options.enableTooltip := false
+            
             MouseMove(p.x, p.y, mouseSpeed, 'R')
-
+            
             if (index = 0)
                 break
             
-            tipId := ToolTip(
-                p.click, 
-                p.oMenu.prevTooltipX, 
-                p.oMenu.prevTooltipY + 30, 
-                0xb
-            )
+            MouseGetPos(&mouseX, &mouseY)
+            ttHwnd := ToolTip(p.click, mouseX, mouseY, 0xb)
             
             switch p.click, false {
             case 'click': 
@@ -1181,7 +1330,8 @@ Class Radify {
                 SendEvent('{Ctrl down}{Click}{Ctrl up}')
             }
             
-            WinSetAlwaysOnTop(true, tipId)
+            WinSetAlwaysOnTop(true, ttHwnd)
+            p.oMenu.options.enableTooltip := lastEnableTooltip
         }
         
         ToolTip(,,, 0xb)
@@ -1252,7 +1402,8 @@ Class Radify {
         CoordMode('Mouse', 'Screen')
         MouseGetPos(&mouseX, &mouseY, &hwndUnderMouse, &ctrlHwndUnderMouse, 2)
 
-        if ((hwndUnderMouse != oMenu.hwnd && ctrlHwndUnderMouse)
+        if ((hwndUnderMouse != oMenu.hwnd 
+        && IsSet(ctrlHwndUnderMouse) && ctrlHwndUnderMouse)
         || !DllCall('IsWindowEnabled', 'Ptr', oMenu.hwnd, 'Int')
         || !DllCall('User32.dll\IsWindowVisible', 'Ptr', oMenu.hwnd)) {
             this.HideEffects(oMenu)
@@ -1553,6 +1704,7 @@ Class Radify {
         )
     }
     
+    ; TODO: simplify OnClick()
     static OnClick(oMenu, clickName, wParam, lParam, msg, hwnd)
     {
         if (hwnd != oMenu.hwnd)
@@ -1670,18 +1822,14 @@ Class Radify {
                 if (item.isEmpty)
                     continue
                 try {
-                    for key in ['hotkeyClick', 'hotkeyRightClick', 'hotkeyShiftClick', 'hotkeyAltClick', 'hotkeyCtrlClick'] {
-                        actionKey := StrReplace(key, 'hotkey', '')
-
-                        if (Type(item.%key%) == 'String' && item.%key% && item.%actionKey% is Func)
-                            Hotkey(item.%key%, item.%actionKey%, 'On')
+                    for prop, htkey in this.EnumerateActions(item, ['hotkey']) {
+                        prop := StrReplace(prop, 'hotkey', '')
+                        Hotkey(htkey, item.%prop%, 'On')
                     }
 
-                    for key in ['hotstringClick', 'hotstringRightClick', 'hotstringShiftClick', 'hotstringAltClick', 'hotstringCtrlClick'] {
-                        actionKey := StrReplace(key, 'hotstring', '')
-
-                        if (Type(item.%key%) == 'String' && item.%key% && item.%actionKey% is Func)
-                            Hotstring(item.%key%, item.%actionKey%, 'On')
+                    for prop, htstring in this.EnumerateActions(item, ['hotstring']) {
+                        prop := StrReplace(prop, 'hotstring', '')
+                        Hotstring(htstring, item.%prop%, 'On')
                     }
                 } catch as e
                     throw Error(e.Message '`n`nDetails:`n- Menu: "' oMenu.id '"`n- Ring: ' ringIdx ', Item: ' itemIdx
