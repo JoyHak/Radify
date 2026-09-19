@@ -312,10 +312,10 @@ Class Radify {
 
     static SetDirectory(dirType, dirPath?)
     {
-        if (IsSet(dirPath) && Type(dirPath) != 'String')
+        if (IsSet(dirPath) && !(dirPath is 'String'))
             return this.ShowErrorMsg('Parameter #1 of Set' StrTitle(dirType) 'Dir requires a String. Received: ' Type(dirPath) '.')
 
-        if (!IsSet(dirPath) || dirPath = '')
+        if (!IsSet(dirPath) || !dirPath)
             dirPath := this.originalGenerals.%dirType%sDir
 
         dirPath := this.ReplaceRootDir(dirPath)
@@ -348,16 +348,16 @@ Class Radify {
         if (!this.isValidConfiguration)
             return
 
-        if (!IsSet(menuId) || menuId = '')
+        if (!IsSet(menuId) || !menuId)
             return this.ShowErrorMsg('Parameter #1 of CreateMenu requires a non-empty String.')
 
-        if (Type(menuId) != 'String')
+        if !(menuId is String)
             return this.ShowErrorMsg('Parameter #1 of CreateMenu requires a String. Received: ' Type(menuId) '.', menuId)
 
         if (this.menus.HasOwnProp(menuId))
             return this.ShowErrorMsg('Parameter #1 of CreateMenu must be a unique menu ID. "' menuId '" already exists.')
 
-        if (!IsSet(menuItems) || Type(menuItems) != 'Array')
+        if (!IsSet(menuItems) || !(menuItems is Array))
             return this.ShowErrorMsg('Parameter #2 of CreateMenu requires an Array.' (IsSet(menuItems) ? ' Received: ' Type(menuItems) '.' : ''), menuId)
 
         if (menuItems.Length = 0 || !this.IsArrayOfArrays(menuItems))
@@ -365,7 +365,7 @@ Class Radify {
         
         if !IsSet(options)
             options := {}
-        else if (Type(options) != 'Object')
+        else if !(options is Object)
             return this.ShowErrorMsg('Parameter #3 of CreateMenu requires an Object. Received: ' Type(options) '.', menuId)
 
         newMenuIds := []
@@ -529,7 +529,7 @@ Class Radify {
         validItemCount := 0
 
         for ringIdx, ringItems in menuItems {
-            if (!Type(ringItems) = 'Array' || ringItems.Length = 0)
+            if (!(ringItems is Array) || ringItems.Length = 0)
                 continue
 
             ring := {items: [], radius: 0}
@@ -568,7 +568,7 @@ Class Radify {
             submenuId: 0
         }
 
-        if (Type(menuItem) != 'Object')
+        if !(menuItem is Object)
             throw Error('Menu item requires an Object. Received: ' Type(menuItem) '.`n`nDetails:`n- Menu: "' menuId '"`n- Ring: ' ringIdx ', Item: ' itemIdx)
 
         if (ObjOwnPropCount(menuItem) = 0) {
@@ -594,8 +594,9 @@ Class Radify {
         }
         
         for key, action in this.EnumerateActions(menuItem, []) {
-            if (action != 'drag')
+            if (action != 'drag') {
                 item.%key% := action
+            }
         }
         
         for key, action in this.EnumerateActions(menuItem, ['hotkey', 'hotstring']) {
@@ -603,16 +604,7 @@ Class Radify {
         }
 
         for key in ['image', 'text', 'tooltip'] {
-            if (menuItem.HasOwnProp(key) && menuItem.%key%) {
-                item.%key% := menuItem.%key%
-            }
-        }
-        
-        if (item.HasOwnProp('mirrorClickToRightClick') 
-         && item.mirrorClickToRightClick 
-         && !item.HasOwnProp('rightClick')
-         && item.HasOwnProp('click')) {
-            item.rightClick := item.click
+            item.%key% := menuItem.HasOwnProp(key) ? menuItem.%key% : ''
         }
 
         item.textFontOptions := this.NormalizeFontOptions(item.textFontOptions)
@@ -627,7 +619,7 @@ Class Radify {
             item.submenuId := submenuId
             oMenu.submenuIds.Push(submenuId)
 
-            if (Type(arrSubmenu) != 'Array')
+            if !(arrSubmenu is Array)
                 throw Error('The Submenu property requires an Array. Received: ' Type(arrSubmenu) '.`n`nDetails:`n- Menu: "' menuId '"`n- Ring: ' ringIdx ', Item: ' itemIdx)
 
             if (arrSubmenu.Length = 0 || !this.IsArrayOfArrays(arrSubmenu))
@@ -635,11 +627,11 @@ Class Radify {
 
             submenuOptions := {}
 
-            if (menuItem.HasOwnProp('submenuOptions') && Type(menuItem.submenuOptions) = 'Object')
+            if (menuItem.HasOwnProp('submenuOptions') && (menuItem.submenuOptions is Object))
                 for key, value in menuItem.submenuOptions.OwnProps()
                     submenuOptions.%key% := value
 
-            if (item.HasOwnProp('image') && !submenuOptions.HasOwnProp('centerImage'))
+            if (item.image && !submenuOptions.HasOwnProp('centerImage'))
                 submenuOptions.centerImage := item.image
 
             if (!submenuOptions.HasOwnProp('skin'))
@@ -654,18 +646,26 @@ Class Radify {
         if (oMenu.options.autoTooltip && !item.HasOwnProp('tooltip')) {
             if (oMenu.options.autoTooltipStructure) {
                 item.tooltip := ''
-                if (item.HasOwnProp('text')) {
+                if (item.text) {
                     item.tooltip .= item.text '`n'
                 }
                 item.tooltip .= this.ItemToString(item)
             } else {
-                if (item.HasOwnProp('text')) {
+                if (item.text) {
                     item.tooltip := item.text
-                } else if (item.HasOwnProp('image')) {
+                } else if (item.image) {
                     SplitPath(item.image,,,, &nameNoExt)
                     item.tooltip := nameNoExt
                 }
             }
+        }
+        
+        ; Avoid click and rightClick duplication in the tooltip
+        if (item.HasOwnProp('mirrorClickToRightClick') 
+         && item.mirrorClickToRightClick 
+         && !item.HasOwnProp('rightClick')
+         && item.HasOwnProp('click')) {
+            item.rightClick := item.click
         }
 
         return item
@@ -768,11 +768,7 @@ Class Radify {
                 }
             }
         }
-        
-        if !str {
-            str := ' (empty)'
-        }
-        
+                
         level -= this.indentationLevel
         return padMenu . 'menu "' menuId '"' str
     }
@@ -914,7 +910,7 @@ Class Radify {
                     }
                 }
 
-                if (item.enableItemText && item.HasOwnProp('text')) {
+                if (item.enableItemText && item.text) {
                     textBoxWidth := Round(item.itemSize * item.textBoxScale)
                     textBoxHeight := Round(item.itemSize * item.textBoxScale)
                     argbColor := 'ff' item.textColor
