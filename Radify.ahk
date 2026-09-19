@@ -68,6 +68,7 @@ Class Radify {
             savePathFindItem: true,
             casePathFind: false,
             strictPathFind: false,
+            pathFindHotkey: '^sc021',
             autoCenterMouse: true,
             alwaysOnTop: true,
             activateOnShow: false,
@@ -593,14 +594,16 @@ Class Radify {
             }
         }
         
+        ; Main actions
         for key, action in this.EnumerateActions(menuItem, []) {
             if (action != 'drag') {
                 item.%key% := action
             }
         }
         
-        for key, action in this.EnumerateActions(menuItem, ['hotkey', 'hotstring']) {
-            item.%key% := action
+        ; Trigger for actions above
+        for key, str in this.EnumerateActions(menuItem, ['hotkey', 'hotstring']) {
+            item.%key% := str
         }
 
         for key in ['image', 'text', 'tooltip'] {
@@ -1341,7 +1344,7 @@ Class Radify {
     }
     
     /**
-     * Displays search window for {@link Radify.PathFind}
+     * Displays search window for {@link Radify#PathFind}
      */
     static AskPathFind(*) {
         s := this.menus.%this.lastMenuOpenInfo.id%.options
@@ -1563,9 +1566,7 @@ Class Radify {
         }
         
         this.ShowAt(oMenu, mouseX, mouseY, autoCenterMouse?)
-        
-        ; Ctrl+F shows search window
-        HotKey('^sc021', this.AskPathFind.Bind(this), 'On')
+        HotKey(oMenu.options.pathFindHotkey, this.AskPathFind.Bind(this), 'On')
     }
 
     ;=============================================================================================
@@ -1627,7 +1628,7 @@ Class Radify {
             this.DeregisterHoverHandlers(oMenu)
 
         this.DeregisterClickHandlers(oMenu)
-        HotKey('^f', this.AskPathFind.Bind(this), 'Off')
+        HotKey(oMenu.options.pathFindHotkey, this.AskPathFind.Bind(this), 'Off')
     }
 
     ;=============================================================================================
@@ -1703,7 +1704,6 @@ Class Radify {
         )
     }
     
-    ; TODO: simplify OnClick()
     static OnClick(oMenu, clickName, wParam, lParam, msg, hwnd)
     {
         if (hwnd != oMenu.hwnd)
@@ -1717,64 +1717,79 @@ Class Radify {
         soundPlayed := false
         foundItem   := false
         
+        action := close := ''
+        
         for (index, itemInfo in oMenu.itemList) {
             if !(this.IsPointInCircularZone(itemInfo, relX, relY))
                 continue
                 
             if (itemInfo.isCenter) {
-                if (oMenu.parentMenuId && clickName == 'click')
+                if (oMenu.parentMenuId && clickName = 'rightClick')
                     return this.ToggleSubmenu(this.menus.%oMenu.parentMenuId%, oMenu.id, 0, 0)
 
-                clickName := 'center' clickName
-                action := oMenu.options.%clickName%
-                close  := (action = 'close')
-            } else {
-                ring := oMenu.rings[itemInfo.ringIdx]
-                item := ring.items[itemInfo.itemIdx]
-
-                if (clickName == 'click') {
-                    if GetKeyState('Shift', 'P')
-                        result := GetActionAndClose(item, 'shiftClick')
-                    else if GetKeyState('Alt', 'P')
-                        result := GetActionAndClose(item, 'altClick')
-                    else if GetKeyState('Ctrl', 'P')
-                        result := GetActionAndClose(item, 'ctrlClick')
-                    else {
-                        if (item.submenuId) {                            
-                            return this.ToggleSubmenu(oMenu, item.submenuId, item.absX, item.absY)
-                        }
- 
-                        result := GetActionAndClose(item, 'click')                        
-                    }
-                } else {
-                    result := GetActionAndClose(item, 'rightClick')
-                }    
-
-                action := result.action
-                close  := result.close
-
-                if (item.soundOnSelect && action) {
-                    this.PlaySound(item.soundOnSelect) 
-                    soundPlayed := true                        
+                action := oMenu.options.%'center' . clickName%
+                close  := (action is String) && (action = 'close')
+                
+                foundItem := true
+                break
+            } 
+            
+            ; Determine the type of click event and required action to execute
+            ring := oMenu.rings[itemInfo.ringIdx]
+            item := ring.items[itemInfo.itemIdx]
+            
+            if (clickName = 'rightClick') {
+                if (item.HasOwnProp('rightClick')) {
+                    action := item.rightClick 
                 }
+                close := item.closeOnItemRightClick
+                goto SoundPhase
             }
+            
+            ; Check the modifiers state
+            close := item.closeOnItemClick
+            for modifier in ['shift', 'alt', 'ctrl'] {
+                key := modifier . 'Click'
+        
+                if (item.HasOwnProp(key) && item.%key% 
+                 && GetKeyState(modifier, 'P')) {
+                    action := item.%key%
+                    goto SoundPhase
+                }            
+            }
+
+            ; Simple left click
+            if (item.submenuId) {                            
+                return this.ToggleSubmenu(oMenu, item.submenuId, item.absX, item.absY)
+            }
+            if (item.HasOwnProp('click')) {
+                action := item.click 
+            }
+            
+            SoundPhase:
+            if (action && item.soundOnSelect) {
+                this.PlaySound(item.soundOnSelect) 
+                soundPlayed := true                        
+            }           
 
             foundItem := true
             break
         }
 
-        if !(foundItem && action) {
-            clickName := 'menu' clickName
-            action := oMenu.options.%clickName%
-            close := (Type(action) == 'String' && action = 'close')
+        if (!foundItem || !action) {
+            action := oMenu.options.%'menu' . clickName%
         }
-
+        if ((action is String) && (action = 'close')) {
+            close := true
+        }
+       
         if (close) {
             rootMenuId := oMenu.id
-            while (this.menus.%rootMenuId%.parentMenuId)
-                rootMenuId := this.menus.%rootMenuId%.parentMenuId
+            while (parentId := this.menus.%rootMenuId%.parentMenuId) {
+                rootMenuId := parentId
+            }
             this.Close(rootMenuId, soundPlayed)
-        } else if (Type(action) == 'String') {
+        } else if (action is String) {
             switch action, false {
                 case 'closeMenu':
                     return this.CloseMenu(oMenu.id, soundPlayed)
@@ -1787,29 +1802,6 @@ Class Radify {
 
         if (action.HasMethod('Call'))
             action.Call()
-
-        ;==============================================
-
-        GetActionAndClose(item, clickType) {
-            if !(action := item.%clickType%)
-                 action := item.click
-            
-            close  := (clickType = 'rightClick'
-                   ? item.closeOnItemRightClick 
-                   : item.closeOnItemClick)
-            
-            if (Type(action) != 'String') 
-                return {action: action, close: close}
-
-            switch action, false {  ; case-insens. property name
-                case 'close':
-                    return {action: action, close: true}
-                case 'closeMenu', 'drag':
-                    return {action: action, close: false}     
-                default:
-                    return {action: action, close: close}
-            }               
-        }
     }
 
     ;=============================================================================================
