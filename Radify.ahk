@@ -73,7 +73,7 @@ Class Radify {
             activateOnShow: false,
             hideOnLoseFocus: false,
             autoTooltip: true,
-            autoTooltipStructure: true,
+            autoTooltipStructure: false,
             autoTooltipTextFirst: true,
             enableTooltip: true,
             enableGlow: true,
@@ -642,8 +642,9 @@ Class Radify {
             this.ProcessMenu(submenuId, arrSubmenu, submenuOptions, newMenuIds, menuId)
         }
         
-        
-        if (oMenu.options.autoTooltip && !item.HasOwnProp('tooltip')) {
+        ; Submenu IDs is generated at this points, 
+        ; so we can display them in the tooltip
+        if (oMenu.options.autoTooltip && !item.tooltip) {
             if (oMenu.options.autoTooltipStructure) {
                 item.tooltip := ''
                 if (item.text) {
@@ -1562,7 +1563,9 @@ Class Radify {
         }
         
         this.ShowAt(oMenu, mouseX, mouseY, autoCenterMouse?)
-        HotKey('^f', this.AskPathFind.Bind(this), 'On')
+        
+        ; Ctrl+F shows search window
+        HotKey('^sc021', this.AskPathFind.Bind(this), 'On')
     }
 
     ;=============================================================================================
