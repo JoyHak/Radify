@@ -64,6 +64,7 @@ Class Radify {
             closeOnItemClick: true,
             closeOnItemRightClick: true,
             closeMenuBlock: false,
+            stayOpenOn: 'alt',
             mirrorClickToRightClick: false,
             savePathFindItem: true,
             casePathFind: false,
@@ -150,7 +151,8 @@ Class Radify {
             submenuIndicatorImage: 'SubmenuIndicator.png',
             centerImage: 'CenterImage.png',
         }
-
+        
+        this.arrClick := ['None', 'Close', 'CloseMenu', 'Drag']
         this.arrKeysSound := ['soundOnSelect', 'soundOnShow', 'soundOnClose', 'soundOnSubShow', 'soundOnSubClose']
 
         this.originalDefaults := {}
@@ -481,6 +483,7 @@ Class Radify {
         this.menus.%menuId% := oMenu
         newMenuIds.Push(menuId)
         this.MergeMenuOptions(oMenu, options)
+        this.ProcessActions(oMenu.options, options, menuId, 0, 'menu options', ['center', 'menu'], ['click', 'right'])
         this.ProcessRings(oMenu, menuItems, menuId, newMenuIds, oMenu.parentMenuId)
     }
 
@@ -558,6 +561,20 @@ Class Radify {
         if (validRingCount = 0 || validItemCount = 0)
             throw Error((parentMenuId ? 'One of its submenus' : 'The menu') ' contains no valid rings or items.`n`nDetails:`n- Menu: "' menuId '"')
     }
+    
+    static ProcessActions(item, menuItem, menuId, ringIdx, itemIdx, prefix?, trigger?)
+    {
+        for key, action in this.EnumerateActions(menuItem, prefix?, trigger?) {
+            if (action is String) {
+                if !this.HasVal(action, this.arrClick) {
+                    throw Error('"' key '" requires predefined action: ' this.ArrayToString(this.arrClick, ', ') '.`nReceived: "' action '".`n`nDetails:`n- Menu: "' menuId '"`n- Ring: ' ringIdx ', Item: ' itemIdx)
+                }
+            } else if !(action.HasMethod('Call')) {
+                throw Error('"' key '" action requires a Callable. Received: ' Type(action) '.`n`nDetails:`n- Menu: "' menuId '"`n- Ring: ' ringIdx ', Item: ' itemIdx)
+            }
+            item.%key% := action
+        }   
+    }
 
     ;=============================================================================================
 
@@ -595,11 +612,7 @@ Class Radify {
         }
         
         ; Main actions
-        for key, action in this.EnumerateActions(menuItem, []) {
-            if (action != 'drag') {
-                item.%key% := action
-            }
-        }
+        this.ProcessActions(item, menuItem, menuId, ringIdx, itemIdx, [])
         
         ; Trigger for actions above
         for key, str in this.EnumerateActions(menuItem, ['hotkey', 'hotstring']) {
@@ -695,7 +708,8 @@ Class Radify {
                     trig := ''      
                 
                 key := pref . trig . 'Click'
-                if (menuItem.HasOwnProp(key) && menuItem.%key%) {
+                if (menuItem.HasOwnProp(key) 
+                 && menuItem.%key% && menuItem.%key% != 'none') {
                     actions.Set(key, menuItem.%key%)
                      if firstOnly
                         return actions
@@ -1698,10 +1712,13 @@ Class Radify {
     ;=============================================================================================
 
     static OnLoseFocus(oMenu, wParam, lParam, msg, hwnd) {
-        SetTimer(
-            (*) => (WinExist('A') != oMenu.hwnd ) && this.Close(oMenu.id), 
-            -100
-        )
+        if !(oMenu.options.stayOpenOn 
+          && GetKeyState(oMenu.options.stayOpenOn)) {
+            SetTimer(
+                (*) => ((WinExist('A') != oMenu.hwnd) && this.Close(oMenu.id)), 
+                -100
+            )
+        }
     }
     
     static OnClick(oMenu, clickName, wParam, lParam, msg, hwnd)
@@ -1727,14 +1744,12 @@ Class Radify {
                 if (oMenu.parentMenuId && clickName = 'rightClick')
                     return this.ToggleSubmenu(this.menus.%oMenu.parentMenuId%, oMenu.id, 0, 0)
 
-                action := oMenu.options.%'center' . clickName%
-                close  := (action is String) && (action = 'close')
-                
+                action := oMenu.options.center%clickName%                
                 foundItem := true
                 break
             } 
             
-            ; Determine the type of click event and required action to execute
+            ; Determine the required item action and menu closing behavior
             ring := oMenu.rings[itemInfo.ringIdx]
             item := ring.items[itemInfo.itemIdx]
             
@@ -1742,17 +1757,23 @@ Class Radify {
                 if (item.HasOwnProp('rightClick')) {
                     action := item.rightClick 
                 }
-                close := item.closeOnItemRightClick
+                 
+                close := (oMenu.options.stayOpenOn && GetKeyState(oMenu.options.stayOpenOn)) 
+                       ? false 
+                       : item.closeOnItemRightClick
+                    
                 goto SoundPhase
             }
             
+            close := (oMenu.options.stayOpenOn && GetKeyState(oMenu.options.stayOpenOn)) 
+                   ? false 
+                   : item.closeOnItemClick
+            
             ; Check the modifiers state
-            close := item.closeOnItemClick
             for modifier in ['shift', 'alt', 'ctrl'] {
                 key := modifier . 'Click'
         
-                if (item.HasOwnProp(key) && item.%key% 
-                 && GetKeyState(modifier, 'P')) {
+                if (item.HasOwnProp(key) && GetKeyState(modifier, 'P')) {
                     action := item.%key%
                     goto SoundPhase
                 }            
@@ -1777,31 +1798,37 @@ Class Radify {
         }
 
         if (!foundItem || !action) {
-            action := oMenu.options.%'menu' . clickName%
+            action := oMenu.options.menu%clickName%
         }
-        if ((action is String) && (action = 'close')) {
+        if (action = 'close') {
             close := true
         }
-       
+
+        if (Type(action) = 'string') {
+            switch action, false {
+            case 'closeMenu':
+                return this.CloseMenu(oMenu.id, soundPlayed)
+            case 'drag':
+                return PostMessage(0xA1, 2,,, oMenu.hwnd)
+            default:
+                close := true
+            }
+        }
+        
         if (close) {
             rootMenuId := oMenu.id
             while (parentId := this.menus.%rootMenuId%.parentMenuId) {
                 rootMenuId := parentId
             }
-            this.Close(rootMenuId, soundPlayed)
-        } else if (action is String) {
-            switch action, false {
-                case 'closeMenu':
-                    return this.CloseMenu(oMenu.id, soundPlayed)
-                case 'drag':
-                    return PostMessage(0xA1, 2,,, oMenu.hwnd)
-            }
+            this.Close(rootMenuId, soundPlayed)                
+        } 
+        
+        if (Type(action) = 'string') {
+            return
         }
 
         this.RefreshTooltipZOrder(oMenu)
-
-        if (action.HasMethod('Call'))
-            action.Call()
+        action()
     }
 
     ;=============================================================================================
