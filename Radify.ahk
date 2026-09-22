@@ -76,7 +76,10 @@ Class Radify {
             hideOnLoseFocus: false,
             autoTooltip: true,
             autoTooltipStructure: false,
-            autoTooltipTextFirst: true,
+            autoTooltipMenuItemTextFirst: true,
+            autoTooltipItemActionFirstOnly: false,
+            autoTooltipMaxMenuItems: 2,
+            autoTooltipMaxSubmenuItems: 2,
             enableTooltip: true,
             enableGlow: true,
             enableItemText: true,
@@ -126,6 +129,8 @@ Class Radify {
             enableGlow: [0, 1],
             autoTooltip: [0, 1],
             autoTooltipStructure: [0, 1],
+            autoTooltipMenuItemTextFirst: [0, 1],
+            autoTooltipItemActionFirstOnly: [0, 1],
             enableItemText: [0, 1],
             textSize: [5, 100],
             textRendering: [0, 5],
@@ -666,7 +671,7 @@ Class Radify {
                 if (item.text) {
                     item.tooltip .= item.text '`n'
                 }
-                item.tooltip .= this.ItemToString(item)
+                item.tooltip .= this.ItemToString(item, oMenu.options.autoTooltipMenuItemTextFirst, oMenu.options.autoTooltipItemActionFirstOnly, oMenu.options.autoTooltipMaxMenuItems)
             } else {
                 if (item.text) {
                     item.tooltip := item.text
@@ -723,10 +728,12 @@ Class Radify {
     /**
      * Converts item actions into string.
      * @param {object} menuItem - Objects that represents menu item
-     * @param {bool} firstActionOnly - Append only first found action: 'click', 'rightClick', etc.
+     * @param {bool} firstActionOnly - Append only first found action for each item: "click", "rightClick", etc.
+     * @param {bool} textFirst - If `text` property in **submenu item** is present, append it's value. Otherwise search for action.
+     * @param {integer} limit - Max. items limit in the in **submenu item**. `-1` means "all items".
      * @returns {string} `action: {String}` pairs
      */
-    static ItemToString(menuItem, firstActionOnly := false) 
+    static ItemToString(menuItem, textFirst := true, firstActionOnly := false, limit := 2) 
     {
         str := ''
         for key, action in this.EnumerateActions(menuItem,,, firstActionOnly) {
@@ -737,7 +744,7 @@ Class Radify {
         if (!(firstActionOnly && str) 
          && menuItem.HasOwnProp('submenuId')
          && menuItem.submenuId) {
-            str .= this.SubMenuToString(menuItem.submenuId)
+            str .= this.SubMenuToString(menuItem.submenuId, textFirst, limit)
         }
         
         return Trim(str, ' `n')
@@ -746,10 +753,11 @@ Class Radify {
     /**
      * Converts menu actions into string.
      * @param {string} menuId - Unique identifier of the menu.
-     * @param {bool} firstActionOnly - Append only first found action for each item: 'click', 'rightClick', etc.
+     * @param {bool} textFirst - If `text` property is present, append it's value. Otherwise search for action.
+     * @param {bool} firstActionOnly - Append only first found action for each item: "click", "rightClick", etc.
      * @param {integer} limit - Max. items limit in the string. `-1` means "all items".
      */
-    static MenuToString(menuId, firstActionOnly := false, limit := 2) 
+    static MenuToString(menuId, textFirst := true, firstActionOnly := false, limit := 2) 
     {
         if (!this.menus.HasOwnProp(menuId))
             return this.ShowErrorMsg(A_ThisFunc ' - Menu not found.', menuId)
@@ -770,7 +778,13 @@ Class Radify {
         
         for ring in oMenu.menuItems {
             for item in ring {
-                for key, action in this.EnumerateActions(item,,, firstActionOnly) {
+                if (textFirst 
+                && (item.HasOwnProp('text') && item.text)) {
+                    str .= '`n' . padItem . item.text
+                    continue
+                }
+
+                for key, action in this.EnumerateActions(item, [], , firstActionOnly) {
                     if (s := String(action))
                         str .= '`n' . padItem . s
                 }
@@ -778,7 +792,7 @@ Class Radify {
                 if (!(firstActionOnly && str) 
                  && item.HasOwnProp('submenuId')
                  && item.submenuId) {
-                    str .= this.SubMenuToString(item.submenuId)
+                    str .= this.SubMenuToString(item.submenuId, textFirst, limit)
                 }
                 
                 if (A_Index = limit) {
@@ -791,7 +805,7 @@ Class Radify {
         return padMenu . 'menu "' menuId '"' str
     }
     
-    static SubMenuToString(menuId) 
+    static SubMenuToString(menuId, textFirst := true, limit := 2) 
     {
         static level := 0
         if (++level > 1) {
@@ -799,7 +813,7 @@ Class Radify {
             return ''
         }
         
-        s := Radify.MenuToString(menuId, true, 2)
+        s := Radify.MenuToString(menuId, textFirst, true, limit)
         level--
         return s
     }
