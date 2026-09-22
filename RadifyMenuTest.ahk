@@ -97,7 +97,8 @@ Radify.CreateMenu('main', [[
 ]], 
   {
     autoTooltip: true, 
-    autoTooltipStructure: true
+    autoTooltipStructure: true, 
+    autoTooltipMaxMenuItems: -1
   }
 )
 
