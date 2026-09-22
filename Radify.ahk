@@ -493,10 +493,13 @@ Class Radify {
         this.ProcessRings(oMenu, menuItems, menuId, newMenuIds, oMenu.parentMenuId)
     }
     
-    static ProcessSubmenu(oMenu, submenuId := '', menuItems := '', options := {}, ringIdx := 0, itemIdx := 0, newMenuIds := [])
+    static ProcessSubmenu(oMenu, submenuId := '', menuItems := '', options := {}, ringIdx := 0, itemIdx := 0, clickName := 'click', newMenuIds := [])
     {
         if !submenuId
-            submenuId := oMenu.id '_submenu_' ringIdx '_' itemIdx
+            submenuId := oMenu.id '_submenu_' ringIdx '_' itemIdx '_' clickName
+            
+        if (this.menus.HasOwnProp(submenuId))
+            throw Error('Submenu already created: "' submenuId '".`n`nDetails:`n- Ring: ' ringIdx ', Item: ' itemIdx)
 
         if !(menuItems is Array)
             throw Error('The Submenu must be an Array. Received: ' Type(menuItems) '.`n`nDetails:`n- Submenu: "' submenuId '"`n- Ring: ' ringIdx ', Item: ' itemIdx)
@@ -615,7 +618,7 @@ Class Radify {
                 action.menuId := this.ProcessSubmenu(
                     this.menus.%menuId%,
                     action.menuId, action.menuItems, action.options,                    
-                    ringIdx, itemIdx, newMenuIds?
+                    ringIdx, itemIdx, key, newMenuIds?
                 )
                 
                 ; Options are merged or updated by ProcessMenu
