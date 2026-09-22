@@ -505,10 +505,10 @@ Class Radify {
             throw Error('The Submenu must an Array of one or more inner arrays (rings), each containing item objects.`n`nDetails:`n- Submenu: "' submenuId '"`n- Ring: ' ringIdx ', Item: ' itemIdx)
         
         if !(options is Object)
-            throw Error('Submenu options must be an Object. Received: ' Type(options) '.`n`nDetails:`n- Menu: "' menuId '"`n- Ring: ' ringIdx ', Item: ' itemIdx)
+            throw Error('Submenu options must be an Object. Received: ' Type(options) '.`n`nDetails:`n- Menu: "' submenuId '"`n- Ring: ' ringIdx ', Item: ' itemIdx)
         
-        if (item.image && !options.HasOwnProp('centerImage'))
-            options.centerImage := item.image
+        if (!options.HasOwnProp('centerImage'))
+            options.centerImage := oMenu.options.centerImage
 
         if (!options.HasOwnProp('skin'))
             options.skin := oMenu.options.skin
@@ -604,6 +604,9 @@ Class Radify {
                 if !this.HasVal(action, this.arrClick) {
                     throw Error('"' key '" requires predefined action: ' this.ArrayToString(this.arrClick, ', ') '.`nReceived: "' action '".`n`nDetails:`n- Menu: "' menuId '"`n- Ring: ' ringIdx ', Item: ' itemIdx)
                 }
+                if (action = '' || action = 'none') {
+                    continue
+                }
             } else if !(action.HasMethod('Call')) {
                 throw Error('"' key '" action requires a Callable. Received: ' Type(action) '.`n`nDetails:`n- Menu: "' menuId '"`n- Ring: ' ringIdx ', Item: ' itemIdx)
             }
@@ -669,7 +672,9 @@ Class Radify {
         
         ; Trigger for actions above
         for key, str in this.EnumerateActions(menuItem, ['hotkey', 'hotstring']) {
-            item.%key% := str
+            if (str != '' && str != 'none') {
+                item.%key% := str
+            }
         }
 
         for key in ['image', 'text', 'tooltip'] {
@@ -737,8 +742,7 @@ Class Radify {
                     trig := ''      
                 
                 key := pref . trig . 'Click'
-                if (menuItem.HasOwnProp(key) 
-                 && menuItem.%key% && menuItem.%key% != 'none') {
+                if (menuItem.HasOwnProp(key)) {
                     actions.Set(key, menuItem.%key%)
                      if firstOnly
                         return actions
@@ -939,7 +943,7 @@ Class Radify {
                 }
                 
                 isSubmenu := false
-                for key, action in this.EnumerateActions(menuItem, []) {
+                for key, action in this.EnumerateActions(item, []) {
                     if (action is Submenu) {
                         isSubmenu := true
                         break
@@ -1673,9 +1677,12 @@ Class Radify {
         this.DeregisterClickHandlers(oMenu)
         HotKey(oMenu.options.pathFindHotkey, this.AskPathFind.Bind(this), 'Off')
     }
-
-    ;=============================================================================================
-
+    
+    /**
+     * Closes the specified menu.
+     * @param {string} menuId - Unique identifier of the menu.
+     * @param {boolean} suppressSound - Suppresses the menu close sound.
+     */
     static CloseMenu(menuId, suppressSound := false)
     {
         if (!this.menus.HasOwnProp(menuId))
@@ -1709,17 +1716,31 @@ Class Radify {
             this.RegisterClickHandlers(parentMenu)
         }
     }
+    
+    /**
+     * Searches for the menu root and closes the entire branch from root to current.
+     * @param {string} menuId - Unique identifier of the current menu.
+     * @param {boolean} suppressSound - Suppresses the menu close sound.
+     */
+    static CloseRoot(menuId, suppressSound := false)
+    {
+        rootMenuId := menuId
+        while (parentId := this.menus.%rootMenuId%.parentMenuId) {
+            rootMenuId := parentId
+        }
+        this.Close(rootMenuId, suppressSound) 
+    }
 
     ;=============================================================================================
 
     static ToggleSubmenu(parentMenuId, submenuId, parentX, parentY, *)
     {
         parentMenu := this.menus.%parentMenuId%
-        submenu := this.menus.%submenuId%
-        if !(parentMenu.isFullyInitialized && submenu.isFullyInitialized)
+        sMenu := this.menus.%submenuId%
+        if !(parentMenu.isFullyInitialized && sMenu.isFullyInitialized)
             return
 
-        submenuIsVisible := DllCall('User32.dll\IsWindowVisible', 'ptr', submenu.hwnd)
+        submenuIsVisible := DllCall('User32.dll\IsWindowVisible', 'ptr', sMenu.hwnd)
         if (submenuIsVisible) {
             this.CloseMenu(submenuId)
             return
@@ -1735,7 +1756,7 @@ Class Radify {
             this.DeregisterHoverHandlers(parentMenu)
 
         this.DeregisterClickHandlers(parentMenu)
-        this.ShowAt(submenu, screenX, screenY)
+        this.ShowAt(sMenu, screenX, screenY)
         parentMenu.gui.Opt('+Disabled')
     }
 
@@ -1745,9 +1766,9 @@ Class Radify {
         if !(oMenu.options.stayOpenOn 
           && GetKeyState(oMenu.options.stayOpenOn)) {
             SetTimer(
-                () => (oMenu.hwnd != DllCall('GetForegroundWindow')) && this.Close(oMenu.id)), 
+                () => ((oMenu.hwnd != DllCall('GetForegroundWindow')) && this.Close(oMenu.id)), 
                 -100
-            )
+            )   
         }
     }
     
@@ -1837,7 +1858,7 @@ Class Radify {
         if (action is String) {
             switch action, false {
             case 'close':
-                close := true
+                return this.CloseRoot(oMenu.id, soundPlayed)
             case 'closeMenu':
                 return this.CloseMenu(oMenu.id, soundPlayed)
             case 'drag':
@@ -1848,11 +1869,7 @@ Class Radify {
         }
         
         if (close) {
-            rootMenuId := oMenu.id
-            while (parentId := this.menus.%rootMenuId%.parentMenuId) {
-                rootMenuId := parentId
-            }
-            this.Close(rootMenuId, soundPlayed)                
+            this.CloseRoot(oMenu.id, soundPlayed)             
         }
 
         this.RefreshTooltipZOrder(oMenu)
