@@ -69,7 +69,7 @@ Class Radify {
             savePathFindItem: true,
             casePathFind: false,
             strictPathFind: false,
-            pathFindHotkey: '^sc021',
+            pathFindHotkey: '^vk46',
             autoCenterMouse: true,
             alwaysOnTop: true,
             activateOnShow: false,
@@ -1272,8 +1272,7 @@ Class Radify {
                     {
                         points.Push({
                             x: item.relX, 
-                            y: item.relY, 
-                            click: key,
+                            y: item.relY,
                             oMenu: oMenu
                         })
                         
@@ -1397,6 +1396,7 @@ Class Radify {
      * Displays search window for {@link Radify#PathFind}
      */
     static AskPathFind(*) {
+        this.CloseRoot(this.lastMenuOpenInfo.id)
         o := this.menus.%this.lastMenuOpenInfo.id%.options
 
         ; Hide border, buttons, titlebar
@@ -1616,7 +1616,11 @@ Class Radify {
         }
         
         this.ShowAt(oMenu, mouseX, mouseY, autoCenterMouse?)
-        HotKey(oMenu.options.pathFindHotkey, this.AskPathFind.Bind(this), 'On')
+
+        if (oMenu.options.pathFindHotkey) {
+            HotKey(oMenu.options.pathFindHotkey, this.AskPathFind.Bind(this), 'On')
+        }
+        
         return true
     }
 
@@ -1665,11 +1669,12 @@ Class Radify {
 
         if (!oMenu.isFullyInitialized || !DllCall('User32.dll\IsWindowVisible', 'ptr', oMenu.hwnd))
             return
-
+        
         for submenuId in oMenu.submenuIds
             if (this.menus.HasOwnProp(submenuId))
                 this.Close(submenuId, true)
 
+        
         if (!suppressSound && !oMenu.parentMenuId)
             this.PlaySound(oMenu.options.soundOnClose)
 
@@ -1679,7 +1684,10 @@ Class Radify {
             this.DeregisterHoverHandlers(oMenu)
 
         this.DeregisterClickHandlers(oMenu)
-        HotKey(oMenu.options.pathFindHotkey, this.AskPathFind.Bind(this), 'Off')
+        
+        if (oMenu.options.pathFindHotkey) {
+            HotKey(oMenu.options.pathFindHotkey, this.AskPathFind.Bind(this), 'Off')
+        }
     }
     
     /**
@@ -1710,7 +1718,8 @@ Class Radify {
         this.DeregisterClickHandlers(oMenu)
 
         if (parentMenu) {
-            SetTimer(() => DllCall('User32.dll\EnableWindow', 'Ptr', parentMenu.hwnd, 'Int', 1), -75)
+            ; SetTimer(() => DllCall('User32.dll\EnableWindow', 'Ptr', parentMenu.hwnd, 'Int', 1), -75)
+            SetTimer(() => WinActivate(parentMenu.hwnd), -75)
             parentMenu.gui.Opt('-Disabled')
             this.HideEffects(oMenu)
 
@@ -1770,8 +1779,8 @@ Class Radify {
         if !(oMenu.options.stayOpenOn 
           && GetKeyState(oMenu.options.stayOpenOn)) {
             SetTimer(
-                () => ((oMenu.hwnd != DllCall('GetForegroundWindow')) && this.Close(oMenu.id)), 
-                -100
+                () => (!WinActive('RadifyGui ahk_class AutoHotkeyGUI') && this.CloseRoot(oMenu.id)), 
+                -100, 20
             )   
         }
     }
@@ -1916,14 +1925,14 @@ Class Radify {
     {
         oMenu.boundFuncOnClick := this.OnClick.Bind(this, oMenu, 'click')
         oMenu.boundFuncOnRightClick := this.OnClick.Bind(this, oMenu, 'rightClick')
-        if (oMenu.options.hideOnLoseFocus) {
-            oMenu.boundFuncWmActivate := this.OnLoseFocus.Bind(this, oMenu)
-            OnMessage(0x0006, oMenu.boundFuncWmActivate)  ; WM_ACTIVATE        
-        }
         OnMessage(0x0201, oMenu.boundFuncOnClick) ; WM_LBUTTONDOWN
         OnMessage(0x0203, oMenu.boundFuncOnClick) ; WM_LBUTTONDBLCLK
         OnMessage(0x0204, oMenu.boundFuncOnRightClick) ; WM_RBUTTONDOWN
         OnMessage(0x0206, oMenu.boundFuncOnRightClick) ; WM_RBUTTONDBLCLK
+        if (oMenu.options.hideOnLoseFocus) {
+             oMenu.boundFuncWmActivate := this.OnLoseFocus.Bind(this, oMenu)
+             OnMessage(0x0006, oMenu.boundFuncWmActivate)  ; WM_ACTIVATE        
+        }
     }
 
     ;=============================================================================================
