@@ -56,10 +56,10 @@ Class Radify {
             submenuIndicatorYRatio: 0.08,
             itemBackgroundImageOnCenter: false,
             itemBackgroundImageOnItems: true,
-            menuClick: 'Close',
-            menuRightClick: 'Close',
+            menuClick: 'None',
+            menuRightClick: 'None',
             centerClick: 'Drag',
-            centerRightClick: 'Close',
+            centerRightClick: 'CloseMenu',
             rootPathFind: '<open>',
             closeOnItemClick: true,
             closeOnItemRightClick: true,
@@ -489,7 +489,7 @@ Class Radify {
         newMenuIds.Push(menuId)
         
         this.MergeMenuOptions(oMenu, options)
-        this.ProcessActions(oMenu.options, options, menuId, 0, 'menu options', newMenuIds, ['center', 'menu'], ['click', 'right'])
+        this.ProcessActions(oMenu.options, oMenu.options, menuId, 0, 'menu options', newMenuIds, ['center', 'menu'], ['click', 'right'])
         this.ProcessRings(oMenu, menuItems, menuId, newMenuIds, oMenu.parentMenuId)
     }
     
@@ -608,6 +608,7 @@ Class Radify {
                     throw Error('"' key '" requires predefined action: ' this.ArrayToString(this.arrClick, ', ') '.`nReceived: "' action '".`n`nDetails:`n- Menu: "' menuId '"`n- Ring: ' ringIdx ', Item: ' itemIdx)
                 }
                 if (action = '' || action = 'none') {
+                    menuItem.DeleteProp(key)
                     continue
                 }
             } else if !(action.HasMethod('Call')) {
@@ -1798,8 +1799,10 @@ Class Radify {
                 continue
                 
             if (itemInfo.isCenter) {
-                action := oMenu.options.center%clickName%   
-                
+                if !oMenu.options.HasOwnProp('center' clickName)
+                    return
+                    
+                action := oMenu.options.center%clickName%
                 itemX := itemInfo.centerX
                 itemY := itemInfo.centerY
                 
@@ -1854,8 +1857,11 @@ Class Radify {
             break
         }
 
-        if (!foundItem || !action) {
+        if (!foundItem && oMenu.options.HasOwnProp('menu' clickName)) {
             action := oMenu.options.menu%clickName%
+        }
+        if (!action) {
+            return
         }
 
         if (action is String) {
