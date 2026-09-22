@@ -1,6 +1,6 @@
 #Include lib\Gdip_All.ahk
 #Include lib\Json.ahk
-#Include lib\Callback\Sub.ahk
+#Include lib\Callback\Submenu.ahk
 #Include lib\Callback\ICallback.ahk
 
 /*********************************************************************************************
@@ -487,9 +487,39 @@ Class Radify {
         oMenu.parentMenuId := (parentMenuId ?? 0)
         this.menus.%menuId% := oMenu
         newMenuIds.Push(menuId)
+        
         this.MergeMenuOptions(oMenu, options)
-        this.ProcessActions(oMenu.options, options, menuId, 0, 'menu options', ['center', 'menu'], ['click', 'right'])
+        this.ProcessActions(oMenu.options, options, menuId, 0, 'menu options', newMenuIds, ['center', 'menu'], ['click', 'right'])
         this.ProcessRings(oMenu, menuItems, menuId, newMenuIds, oMenu.parentMenuId)
+    }
+    
+    static ProcessSubmenu(oMenu, submenuId := '', menuItems := '', options := {}, ringIdx := 0, itemIdx := 0, newMenuIds := [])
+    {
+        if !submenuId
+            submenuId := oMenu.id '_submenu_' ringIdx '_' itemIdx
+
+        if !(menuItems is Array)
+            throw Error('The Submenu must be an Array. Received: ' Type(menuItems) '.`n`nDetails:`n- Submenu: "' submenuId '"`n- Ring: ' ringIdx ', Item: ' itemIdx)
+
+        if (menuItems.Length = 0 || !this.IsArrayOfArrays(menuItems))
+            throw Error('The Submenu must an Array of one or more inner arrays (rings), each containing item objects.`n`nDetails:`n- Submenu: "' submenuId '"`n- Ring: ' ringIdx ', Item: ' itemIdx)
+        
+        if !(options is Object)
+            throw Error('Submenu options must be an Object. Received: ' Type(options) '.`n`nDetails:`n- Menu: "' menuId '"`n- Ring: ' ringIdx ', Item: ' itemIdx)
+        
+        if (item.image && !options.HasOwnProp('centerImage'))
+            options.centerImage := item.image
+
+        if (!options.HasOwnProp('skin'))
+            options.skin := oMenu.options.skin
+
+        options.soundOnShow  := (options.HasOwnProp('soundOnShow')  ? options.soundOnShow  : oMenu.options.soundOnSubShow)
+        options.soundOnClose := (options.HasOwnProp('soundOnClose') ? options.soundOnClose : oMenu.options.soundOnSubClose)
+        
+        this.ProcessMenu(submenuId, menuItems, options, newMenuIds, oMenu.id)
+        oMenu.submenuIds.Push(submenuId)
+        
+        return submenuId
     }
 
     ;=============================================================================================
@@ -567,7 +597,7 @@ Class Radify {
             throw Error((parentMenuId ? 'One of its submenus' : 'The menu') ' contains no valid rings or items.`n`nDetails:`n- Menu: "' menuId '"')
     }
     
-    static ProcessActions(item, menuItem, menuId, ringIdx, itemIdx, prefix?, trigger?)
+    static ProcessActions(item, menuItem, menuId, ringIdx, itemIdx, newMenuIds?, prefix?, trigger?)
     {
         for key, action in this.EnumerateActions(menuItem, prefix?, trigger?) {
             if (action is String) {
@@ -577,6 +607,18 @@ Class Radify {
             } else if !(action.HasMethod('Call')) {
                 throw Error('"' key '" action requires a Callable. Received: ' Type(action) '.`n`nDetails:`n- Menu: "' menuId '"`n- Ring: ' ringIdx ', Item: ' itemIdx)
             }
+            
+            if (action is Submenu) {
+                action.menuId := this.ProcessSubmenu(
+                    this.menus.%menuId%,
+                    action.menuId, action.menuItems, action.options,                    
+                    ringIdx, itemIdx, newMenuIds?
+                )
+                
+                ; Options are merged or updated by ProcessMenu
+                action.options := this.menus.%action.menuId%.options
+            }
+            
             item.%key% := action
         }   
     }
@@ -587,8 +629,7 @@ Class Radify {
     {
         item := {
             itemSize: oMenu.options.itemSize,
-            isEmpty: false,
-            submenuId: 0
+            isEmpty: false
         }
 
         if !(menuItem is Object)
@@ -616,8 +657,15 @@ Class Radify {
             }
         }
         
-        ; Main actions
-        this.ProcessActions(item, menuItem, menuId, ringIdx, itemIdx, [])
+        ; Click actions
+        if (menuItem.HasOwnProp('submenu')) {
+            if (menuItem.HasOwnProp('click')
+            && (menuItem.click is Submenu)) {
+                throw Error('Incompatible properties: "click" and "submenu" perform the same action - open the menu.`n`nDetails:`n- Menu: "' menuId '"`n- Ring: ' ringIdx ', Item: ' itemIdx)
+            }
+            menuItem.click := Submenu('', menuItem.submenu, menuItem.HasOwnProp('submenuOptions') ? menuItem.submenuOptions : {})
+        }
+        this.ProcessActions(item, menuItem, menuId, ringIdx, itemIdx, newMenuIds, [])
         
         ; Trigger for actions above
         for key, str in this.EnumerateActions(menuItem, ['hotkey', 'hotstring']) {
@@ -627,43 +675,8 @@ Class Radify {
         for key in ['image', 'text', 'tooltip'] {
             item.%key% := menuItem.HasOwnProp(key) ? menuItem.%key% : ''
         }
-
-        item.textFontOptions := this.NormalizeFontOptions(item.textFontOptions)
-
-        angle := (itemIdx - 1) * (2 * this.PI / itemCount) - (this.PI / 2)
-        item.relX := Round(radius * Cos(angle))
-        item.relY := Round(radius * Sin(angle))
-
-        if (menuItem.HasOwnProp('submenu')) {
-            arrSubmenu := menuItem.submenu
-            submenuId := menuId '_submenu_' ringIdx '_' itemIdx
-            item.submenuId := submenuId
-            oMenu.submenuIds.Push(submenuId)
-
-            if !(arrSubmenu is Array)
-                throw Error('The Submenu property requires an Array. Received: ' Type(arrSubmenu) '.`n`nDetails:`n- Menu: "' menuId '"`n- Ring: ' ringIdx ', Item: ' itemIdx)
-
-            if (arrSubmenu.Length = 0 || !this.IsArrayOfArrays(arrSubmenu))
-                throw Error('The Submenu property requires an Array of one or more inner arrays (rings), each containing item objects.`n`nDetails:`n- Menu: "' menuId '"`n- Ring: ' ringIdx ', Item: ' itemIdx)
-
-            submenuOptions := {}
-
-            if (menuItem.HasOwnProp('submenuOptions') && (menuItem.submenuOptions is Object))
-                for key, value in menuItem.submenuOptions.OwnProps()
-                    submenuOptions.%key% := value
-
-            if (item.image && !submenuOptions.HasOwnProp('centerImage'))
-                submenuOptions.centerImage := item.image
-
-            if (!submenuOptions.HasOwnProp('skin'))
-                submenuOptions.skin := oMenu.options.skin
-
-            submenuOptions.soundOnShow := (submenuOptions.HasOwnProp('soundOnShow') ? submenuOptions.soundOnShow : oMenu.options.soundOnSubShow)
-            submenuOptions.soundOnClose := (submenuOptions.HasOwnProp('soundOnClose') ? submenuOptions.soundOnClose : oMenu.options.soundOnSubClose)
-            this.ProcessMenu(submenuId, arrSubmenu, submenuOptions, newMenuIds, menuId)
-        }
         
-        ; Submenu IDs is generated at this points, 
+        ; Submenu IDs are generated at this points, 
         ; so we can display them in the tooltip
         if (oMenu.options.autoTooltip && !item.tooltip) {
             if (oMenu.options.autoTooltipStructure) {
@@ -671,7 +684,12 @@ Class Radify {
                 if (item.text) {
                     item.tooltip .= item.text '`n'
                 }
-                item.tooltip .= this.ItemToString(item, oMenu.options.autoTooltipMenuItemTextFirst, oMenu.options.autoTooltipItemActionFirstOnly, oMenu.options.autoTooltipMaxMenuItems)
+                item.tooltip .= this.ItemToString(
+                    item, 
+                    oMenu.options.autoTooltipMenuItemTextFirst, 
+                    oMenu.options.autoTooltipItemActionFirstOnly, 
+                    oMenu.options.autoTooltipMaxMenuItems
+                )
             } else {
                 if (item.text) {
                     item.tooltip := item.text
@@ -689,6 +707,12 @@ Class Radify {
          && item.HasOwnProp('click')) {
             item.rightClick := item.click
         }
+
+        item.textFontOptions := this.NormalizeFontOptions(item.textFontOptions)
+
+        angle := (itemIdx - 1) * (2 * this.PI / itemCount) - (this.PI / 2)
+        item.relX := Round(radius * Cos(angle))
+        item.relY := Round(radius * Sin(angle))
 
         return item
     }
@@ -741,12 +765,6 @@ Class Radify {
                 str .= key ': ' s '`n'
         }
         
-        if (!(firstActionOnly && str) 
-         && menuItem.HasOwnProp('submenuId')
-         && menuItem.submenuId) {
-            str .= this.SubMenuToString(menuItem.submenuId, textFirst, limit)
-        }
-        
         return Trim(str, ' `n')
     }
     
@@ -787,12 +805,6 @@ Class Radify {
                 for key, action in this.EnumerateActions(item, [], , firstActionOnly) {
                     if (s := String(action))
                         str .= '`n' . padItem . s
-                }
-                
-                if (!(firstActionOnly && str) 
-                 && item.HasOwnProp('submenuId')
-                 && item.submenuId) {
-                    str .= this.SubMenuToString(item.submenuId, textFirst, limit)
                 }
                 
                 if (A_Index = limit) {
@@ -914,7 +926,7 @@ Class Radify {
                         Gdip_DisposeImage(pItemBackgroundImage)
                 }
 
-                if (item.HasOwnProp('image')) {
+                if (item.image) {
                     item.pImage := this.LoadImage(item.image, oMenu.skinDir)
 
                     if (item.pImage) {
@@ -925,12 +937,21 @@ Class Radify {
                         Gdip_DisposeImage(item.pImage)
                     }
                 }
+                
+                isSubmenu := false
+                for key, action in this.EnumerateActions(menuItem, []) {
+                    if (action is Submenu) {
+                        isSubmenu := true
+                        break
+                    }
+                }   
 
-                if (item.submenuId) {
-                    if (item.submenuIndicatorImage = oMenu.options.submenuIndicatorImage)
+                if (isSubmenu) {
+                    if (item.submenuIndicatorImage = oMenu.options.submenuIndicatorImage) {
                         pSubmenuIndicatorImage := oMenu.pSubmenuIndicatorImage
-                    else
+                    } else {
                         pSubmenuIndicatorImage := this.LoadImage(item.submenuIndicatorImage, oMenu.skinDir)
+                    }
 
                     if (pSubmenuIndicatorImage) {
                         indicatorX := Round(absX + (item.itemSize - item.submenuIndicatorSize) / 2)
@@ -1219,115 +1240,106 @@ Class Radify {
         }
         return false
     }
-    
+
     /**
      * Searches for an item with specific text and displays it's location by moving user mouse.
-     * @param {text} itemText - The value of the `text` property for the item/menu object that needs to be found in the menu.
-     * @remark Can find any item, menu or sub-menu with specified `itemText`.
-     * @remark The function's behavior is controlled by a set of settings. 
-     * @remark To demonstrate the element's location, the mouse begins moving and opening sub-menus, 
-     * including those created using the `Sub` class. 
+     * @param {text} itemText - The value of the `text` property for the item/menu/submenu object 
+     * that needs to be found in the menu.
+     * @returns {bool} `true` on success, `false` on error + shows error message.
+     *
+     * @note Method can find any item, menu or sub-menu with specified `itemText`.
+     * It's behavior is controlled by menu options, where item was found.
      */
     static PathFind(itemText := this.lastFoundInfo.itemText, *) {          
         points := []
-        FindPoint(oMenu, comparator) {
-            if !(i := this.FindItem(oMenu, comparator))
-                return 0
-             
-            if (!i.HasOwnProp('pointClick'))
-                i.pointClick := 'click'
-            
-            points.Push({
-                x: i.relX, 
-                y: i.relY, 
-                click: i.pointClick,
-                oMenu: oMenu,
-            })
-            
-            return oMenu.id
-        }
-        
-        Compare(haystack, needle, caseSensitive := false) {
-            return (caseSensitive && haystack == needle) 
-               || (!caseSensitive && haystack = needle)
-        }
-        
-        ; Find target item
         targetMenuId := 0
-        for _, oMenu in this.menus.OwnProps() {
-            caseSensitive := oMenu.options.casePathFind
-            if (targetMenuId := FindPoint(oMenu, (i) => Compare(i.text, itemText, caseSensitive)))
-                break
+        
+        FindItemText:
+        for menuId, oMenu in this.menus.OwnProps() {
+            for ring in oMenu.rings {
+                for item in ring.items {
+                    caseSens := oMenu.options.casePathFind
+                    if (((caseSens && item.text == itemText) 
+                     || (!caseSens && item.text = itemText))) 
+                    {
+                        points.Push({
+                            x: item.relX, 
+                            y: item.relY, 
+                            click: key,
+                            oMenu: oMenu
+                        })
+                        
+                        targetMenuId := menuId
+                        break FindItemText
+                    }
+                }
+            }
         }
         
         if !targetMenuId
             return this.ShowErrorMsg(A_ThisFunc ' - Item not found: "' itemText '".')
         
         ; Traverse path from target item to the root
-        s := points[-1].oMenu.options
+        o := points[-1].oMenu.options
         
-        switch s.rootPathFind, false {
+        switch o.rootPathFind, false {
         case '<root>':
-            rootMenuId := ''  ; traverse the entire chain while it's possible
+            rootMenuId := 0  ; traverse the entire chain while it's possible
         case '<open>':
             rootMenuId := this.lastMenuOpenInfo.id
         case '<last>':
             rootMenuId := this.lastFoundInfo.menuId
         default:
-            rootMenuId := s.rootPathFind
+            rootMenuId := o.rootPathFind  ; menuId from user
         }
         
         curMenuId := targetMenuId
         
         TraverseTarget:
-        loop {
-            if (curMenuId = rootMenuId)
-                break TraverseTarget
-            
+        while (curMenuId != rootMenuId) {
             curMenu := this.menus.%curMenuId%
-            if (curMenu.parentMenuId) {
-                ; Find point in parent menu
-                parentMenu := this.menus.%curMenu.parentMenuId%
-                if (menuId := FindPoint(parentMenu, (i) => Compare(i.submenuId, curMenuId, s.casePathFind))) {
-                    curMenuId := menuId
-                    continue TraverseTarget
-                }
+            if (!curMenu.parentMenuId) {
+                break
             }
             
-            ; Find point by click, rightClick, ... item property
-            IsSub(item) {
-                for key, action in this.EnumerateActions(item, []) {
-                    if ((action is Sub)
-                     && Compare(action.menuId, curMenuId, s.casePathFind)) {
-                        item.pointClick := key
-                        return true
+            ; Find point in parent menu
+            parentMenu := this.menus.%curMenu.parentMenuId%
+            
+            for ring in parentMenu.rings {
+                for item in ring.items {
+                    for key, action in this.EnumerateActions(item, []) {
+                        ; Find item that opens current menu
+                        if ((action is Submenu)
+                        && ((o.casePathFind && action.menuId == curMenuId) 
+                            || (!o.casePathFind && action.menuId = curMenuId))) 
+                        {
+                            points.Push({
+                                x: item.relX, 
+                                y: item.relY, 
+                                click: key,
+                                oMenu: parentMenu
+                            })
+                            
+                            curMenuId := parentMenu.id
+                            continue TraverseTarget
+                        }
                     }
                 }
-                return false
             }
-            
-            for _, oMenu in this.menus.OwnProps() {
-                if (menuId := FindPoint(oMenu, IsSub)) {
-                    curMenuId := menuId
-                    continue TraverseTarget
-                }
-            }
-
-            break TraverseTarget
+            break
         }
         
         rootId := points[-1].oMenu.id
-        if (rootId != rootMenuId && s.strictPathFind)
+        if (rootId != rootMenuId && o.strictPathFind)
             return this.ShowErrorMsg(A_ThisFunc ' - Item "' itemText '" not found in the Menus starting from root "' rootMenuId '".', rootId)
             
         ; Show found root, place mouse in the center
-        this.Show(rootId, true)
-        if !WinWaitActive('RadifyGui ahk_class AutoHotkeyGUI', , 3)
-            return this.ShowErrorMsg('Cannot find item "' itemText '": root menu refused to render', rootId)
-
+        if !this.Show(rootId, true)
+            return
+            
         ; Move mouse through found points
         index := points.length
-        mouseSpeed := 100 - s.speedPathFind
+        mouseSpeed := 100 - o.speedPathFind
         CoordMode('Mouse', 'Screen')
             
         loop points.length {
@@ -1369,22 +1381,24 @@ Class Radify {
             itemText: itemText,
             menuId:   targetMenuId,
         }
+        
+        return true
     }
     
     /**
      * Displays search window for {@link Radify#PathFind}
      */
     static AskPathFind(*) {
-        s := this.menus.%this.lastMenuOpenInfo.id%.options
+        o := this.menus.%this.lastMenuOpenInfo.id%.options
 
         ; Hide border, buttons, titlebar
         ui := Gui('-E0x200 -SysMenu +DPIScale', A_Space)
         ui.SetFont(
             Format(
                 'c{} s{} q{}', 
-                s.textColor, s.textSize, s.textRendering
+                o.textColor, o.textSize, o.textRendering
             ), 
-            s.textFont
+            o.textFont
         )
         
         ui.OnEvent('Close',   (*) => ui.Destroy())
@@ -1392,14 +1406,14 @@ Class Radify {
         
         ui.AddText(, 'Item to find:')
         
-        eSize := s.textSize * 14
+        eSize := o.textSize * 14
         itemText := ui.AddEdit('x+m yp-4 -wrap vitem w' eSize)
-        if s.savePathFindItem
+        if o.savePathFindItem
             itemText.value := this.lastFoundInfo.itemText
             
         itemText.Focus()
         
-        bSize := s.textSize * 3
+        bSize := o.textSize * 3
         ui.AddButton('x+m yp-4 -wrap +default w' bSize ' h' bSize, '=>')
           .OnEvent('Click', OnClick)
         
@@ -1409,12 +1423,12 @@ Class Radify {
         centerX := Round(this.lastMenuOpenInfo.mouseX - width  / 2)
         centerY := Round(this.lastMenuOpenInfo.mouseY - height / 2)
         
-        this.PlaySound(s.soundOnShow)
+        this.PlaySound(o.soundOnShow)
         ui.Show('x' centerX ' y' centerY)
         
         
         OnClick(*) {
-            this.PlaySound(s.soundOnClose)
+            this.PlaySound(o.soundOnClose)
             val := ui.Submit()
             this.PathFind(val.item)
         }
@@ -1595,6 +1609,7 @@ Class Radify {
         
         this.ShowAt(oMenu, mouseX, mouseY, autoCenterMouse?)
         HotKey(oMenu.options.pathFindHotkey, this.AskPathFind.Bind(this), 'On')
+        return true
     }
 
     ;=============================================================================================
@@ -1697,39 +1712,40 @@ Class Radify {
 
     ;=============================================================================================
 
-    static ToggleSubmenu(parentMenu, submenuId, parentX, parentY, *)
+    static ToggleSubmenu(parentMenuId, submenuId, parentX, parentY, *)
     {
-        if (!this.menus.%submenuId%.isFullyInitialized || !parentMenu.isFullyInitialized)
+        parentMenu := this.menus.%parentMenuId%
+        submenu := this.menus.%submenuId%
+        if !(parentMenu.isFullyInitialized && submenu.isFullyInitialized)
             return
 
-        submenu := this.menus.%submenuId%
         submenuIsVisible := DllCall('User32.dll\IsWindowVisible', 'ptr', submenu.hwnd)
-
         if (submenuIsVisible) {
             this.CloseMenu(submenuId)
-        } else {
-            WinGetClientPos(&winLeft, &winTop,,, parentMenu.hwnd)
-            offsetX := Round(parentX + parentMenu.options.itemSize/2)
-            offsetY := Round(parentY + parentMenu.options.itemSize/2)
-            screenX := Round(winLeft + (offsetX * parentMenu.dpiScale))
-            screenY := Round(winTop + (offsetY * parentMenu.dpiScale))
-
-            if (parentMenu.options.enableTooltip || parentMenu.options.enableGlow)
-                this.DeregisterHoverHandlers(parentMenu)
-
-            this.DeregisterClickHandlers(parentMenu)
-            this.ShowAt(submenu, screenX, screenY)
-            parentMenu.gui.Opt('+Disabled')
+            return
         }
+        
+        WinGetClientPos(&winLeft, &winTop,,, parentMenu.hwnd)
+        offsetX := Round(parentX + parentMenu.options.itemSize/2)
+        offsetY := Round(parentY + parentMenu.options.itemSize/2)
+        screenX := Round(winLeft + (offsetX * parentMenu.dpiScale))
+        screenY := Round(winTop + (offsetY * parentMenu.dpiScale))
+
+        if (parentMenu.options.enableTooltip || parentMenu.options.enableGlow)
+            this.DeregisterHoverHandlers(parentMenu)
+
+        this.DeregisterClickHandlers(parentMenu)
+        this.ShowAt(submenu, screenX, screenY)
+        parentMenu.gui.Opt('+Disabled')
     }
 
     ;=============================================================================================
-
+    
     static OnLoseFocus(oMenu, wParam, lParam, msg, hwnd) {
         if !(oMenu.options.stayOpenOn 
           && GetKeyState(oMenu.options.stayOpenOn)) {
             SetTimer(
-                (*) => ((WinExist('A') != oMenu.hwnd) && this.Close(oMenu.id)), 
+                () => (oMenu.hwnd != DllCall('GetForegroundWindow')) && this.Close(oMenu.id)), 
                 -100
             )
         }
@@ -1745,6 +1761,9 @@ Class Radify {
         WinGetClientPos(&winX, &winY,,, oMenu.hwnd)
         relX := (mouseX - winX) / oMenu.dpiScale
         relY := (mouseY - winY) / oMenu.dpiScale
+        
+        itemX := itemY := 0
+        
         soundPlayed := false
         foundItem   := false
         
@@ -1755,10 +1774,11 @@ Class Radify {
                 continue
                 
             if (itemInfo.isCenter) {
-                if (oMenu.parentMenuId && clickName = 'rightClick')
-                    return this.ToggleSubmenu(this.menus.%oMenu.parentMenuId%, oMenu.id, 0, 0)
-
-                action := oMenu.options.center%clickName%                
+                action := oMenu.options.center%clickName%   
+                
+                itemX := itemInfo.centerX
+                itemY := itemInfo.centerY
+                
                 foundItem := true
                 break
             } 
@@ -1766,6 +1786,9 @@ Class Radify {
             ; Determine the required item action and menu closing behavior
             ring := oMenu.rings[itemInfo.ringIdx]
             item := ring.items[itemInfo.itemIdx]
+            
+            itemX := item.absX
+            itemY := item.absY
             
             if (clickName = 'rightClick') {
                 if (item.HasOwnProp('rightClick')) {
@@ -1793,10 +1816,6 @@ Class Radify {
                 }            
             }
 
-            ; Simple left click
-            if (item.submenuId) {                            
-                return this.ToggleSubmenu(oMenu, item.submenuId, item.absX, item.absY)
-            }
             if (item.HasOwnProp('click')) {
                 action := item.click 
             }
@@ -1814,19 +1833,18 @@ Class Radify {
         if (!foundItem || !action) {
             action := oMenu.options.menu%clickName%
         }
-        if (action = 'close') {
-            close := true
-        }
 
-        if (Type(action) = 'string') {
+        if (action is String) {
             switch action, false {
+            case 'close':
+                close := true
             case 'closeMenu':
                 return this.CloseMenu(oMenu.id, soundPlayed)
             case 'drag':
                 return PostMessage(0xA1, 2,,, oMenu.hwnd)
-            default:
-                close := true
             }
+        } else if (action is Submenu) {
+            return this.ToggleSubmenu(oMenu.id, action.menuId, itemX, itemY)
         }
         
         if (close) {
@@ -1835,10 +1853,6 @@ Class Radify {
                 rootMenuId := parentId
             }
             this.Close(rootMenuId, soundPlayed)                
-        } 
-        
-        if (Type(action) = 'string') {
-            return
         }
 
         this.RefreshTooltipZOrder(oMenu)
