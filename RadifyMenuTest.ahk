@@ -3,6 +3,7 @@
 #warn
 #Include Radify.ahk
 #Include lib\Callback\Callbacks.ahk
+#warn
 ; #Include C:\Configs and settings\AutoHotKey\hotkeys\Lib\messages.ahk
 
 Persistent()
@@ -56,7 +57,7 @@ Radify.CreateMenu('main', [[
         image: 'C:\Users\ToYu\Pictures\icons\PNG\enter key.png'
       }
     ]],
-    rightClick: Sub('lLinks',[[
+    rightClick: Sub(,[[
       {
         text: 'Close2',
         click: 'close',
