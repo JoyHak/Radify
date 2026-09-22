@@ -32,8 +32,7 @@ Radify.CreateMenu('main', [[
     text: 'Keys',
     image: 'C:\Users\ToYu\Pictures\icons\clay_square\Mouseless.png',
     ItemBackgroundImage: 'C:\Configs and settings\AutoHotKey\Radify\Skins\Minimal\ItemGlow2.png', 
-    ; click: Sub(,[[
-    submenu: [[
+    click: Sub(,[[
       {
         text: 'Доки',
         click: Tip('click'),
@@ -56,7 +55,7 @@ Radify.CreateMenu('main', [[
         shiftClick: Tip('batch open'),
         image: 'C:\Users\ToYu\Pictures\icons\PNG\enter key.png'
       }
-    ]],
+    ]]),
     rightClick: Sub(,[[
       {
         text: 'Close2',
