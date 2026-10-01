@@ -17,17 +17,18 @@ if (!pToken := Gdip_Startup())
 /*********************************************************************************************
  * Radify Skin Editor - Explore all customization options of the Radify class, configure settings, preview skins, and more.
  * @author Martin Chartier (XMCQCX)
- * @version 1.1.0
+ * @version 1.1.0.10
  * @license MIT
- * @date 2025-08-28
+ * @date 2026-10-01
  * @see {@link https://github.com/XMCQCX/RadifyClass-RadifySkinEditor GitHub}
+ * @see {@link https://github.com/JoyHak/Radify GitHub}
  * @see {@link https://www.autohotkey.com/boards/viewtopic.php?f=83&t=138484 AHK Forum}
  ********************************************************************************************/
 class RadifySkinEditor {
     static __New()
     {
         this.scriptName := 'Radify Skin Editor'
-        this.scriptVersion := 'v1.1.0'
+        this.scriptVersion := 'v1.1.0.10'
         this.linkGitHubRepo := 'https://github.com/XMCQCX/RadifyClass-RadifySkinEditor'
         this.gMainTitle := this.scriptName ' - ' this.scriptVersion
         this.debounceTimers := {}
@@ -57,6 +58,7 @@ class RadifySkinEditor {
         this.arrSkins.InsertAt(1, 'Default')
         this.arrClick := ['None', 'Close', 'CloseMenu', 'Drag']
         this.arrRightClick := ['None', 'Close', 'CloseMenu']
+        this.arrStayOpenOn := ['Alt', 'Shift', 'Ctrl', 'Space', 'LButton', 'RButton']
         this.arrMenuPlaceholders := ['<open>', '<last>', '<root>']
         this.strKeysSoundPipeDelim := this.ArrayToString(Radify.arrKeysSound, '|')
         this.arrkeysImage := this.ObjectToArray(Radify.imageKeyToFileName)
@@ -86,15 +88,15 @@ class RadifySkinEditor {
             ['Menu Right-Click', 'menuRightClick'],
             ['Center Click', 'centerClick'],
             ['Center Right-Click', 'centerRightClick'],
+            ['Stay Open on', 'stayOpenOn'],
+            ['Find Item by', 'pathFindHotkey'],
             ['Close Menu Tree on Item Click', 'closeOnItemClick'],
             ['Close Menu Tree on Item Right-Click', 'closeOnItemRightClick'],
             ['Close Menu Block', 'closeMenuBlock'],
             ['Always on Top', 'alwaysOnTop'],
             ['Activate on Show', 'activateOnShow'],
             ['Hide Menu when focus is lost', 'hideOnLoseFocus'],
-            ['Enable Tooltip', 'enableTooltip'],
             ['Enable Glow', 'enableGlow'],
-            ['Auto Tooltip', 'autoTooltip'],
             ['Auto-Center Mouse', 'autoCenterMouse'],
             ['Save last Found Item', 'savePathFindItem'],
             ['Case-sensitive Find Item', 'casePathFind'],
@@ -120,7 +122,16 @@ class RadifySkinEditor {
             ['Smoothing Mode', 'smoothingMode'],
             ['Interpolation Mode', 'interpolationMode'],
         ]
-
+        
+        ; The order is crucial: It reflects the hierarchy of the checkboxes. Last number = nesting level.
+        this.arrTooltipSettings := [
+            ['Enable Tooltip', 'enableTooltip', 1],
+            ['Auto Tooltip', 'autoTooltip', 2],
+            ['from Menu structure', 'autoTooltipStructure', 3],
+            ['from Items and Menus text', 'autoTooltipMenuItemTextFirst', 4],
+            ['only first found Item action', 'autoTooltipItemActionFirstOnly', 4]            
+        ]
+            
         Radify.originalDefaults.DeleteProp('guiOptions')
         this.arrSettingsBasic := ['itemGlowImage', 'menuOuterRimImage', 'menuBackgroundImage', 'itemBackgroundImage', 'centerBackgroundImage', 'submenuIndicatorImage']
 
@@ -354,7 +365,7 @@ class RadifySkinEditor {
         GuiButtonIcon(this.gMain.btn_donate, this.mIcons['buymeacoffee'], 1, 's20')
 
         gbWidthMisc := (gbWidthSkin + gbWidthTop + this.gMain.MarginX)
-        gbHeightMisc := 490
+        gbHeightMisc := 550
 
         this.gMain.gb_misc := this.gMain.Add('GroupBox',  'xm ym+' gbHeightSkin + this.gMain.MarginY ' w' gbWidthMisc ' h' gbHeightMisc, 'Misc.')
         this.gMain.txt_itemSize := this.gMain.Add('Text', 'xp+10 yp+25 Section +0x0100', this.gMain_GetDisplayName('itemSize') ':')
@@ -399,18 +410,42 @@ class RadifySkinEditor {
         this.gMain.ddl_centerClick := this.gMain.Add('DropDownList', 'xs+170 yp-2 w100 vcenterClick', this.arrClick)
         this.gMain.txt_centerRightClick := this.gMain.Add('Text', 'xs +0x0100', this.gMain_GetDisplayName('centerRightClick') ':')
         this.gMain.ddl_centerRightClick := this.gMain.Add('DropDownList', 'xs+170 yp-2 w100 vcenterRightClick', this.arrRightClick)
+        this.gMain.txt_stayOpenOn := this.gMain.Add('Text', 'xs +0x0100', this.gMain_GetDisplayName('stayOpenOn') ':')
+        this.gMain.ddl_stayOpenOn := this.gMain.Add('DropDownList', 'xs+170 yp-2 w100 vstayOpenOn', this.arrStayOpenOn)
+        this.gMain.txt_pathFindHotkey  := this.gMain.Add('Text', 'xs +0x0100', this.gMain_GetDisplayName('pathFindHotkey') ':')
+        this.gMain.edit_pathFindHotkey := this.gMain.Add('Hotkey', 'xs+170 yp-2 w100 vpathFindHotkey')
         
-        this.gMain.cb_enableGlow := this.gMain.Add('CheckBox', 'xs+285 ys Section venableGlow', ' ' this.gMain_GetDisplayName('enableGlow'))
+        this.gMain.cb_enableGlow := this.gMain.Add('CheckBox', 'xs+285 ys Section venableGlow', this.gMain_GetDisplayName('enableGlow'))
         
-        for setting in ['enableItemText', 'enableTooltip', 
-            'autoTooltip', 'autoCenterMouse', 
+        for setting in ['enableItemText', 'autoCenterMouse',
             'itemBackgroundImageOnCenter', 'itemBackgroundImageOnItems', 
             'alwaysOnTop', 'activateOnShow', 'hideOnLoseFocus', 
             'closeOnItemClick', 'closeOnItemRightClick', 'closeMenuBlock', 
             'mirrorClickToRightClick', 
             'savePathFindItem', 'casePathFind', 'strictPathFind']
-            this.gMain.cb_%setting% := this.gMain.Add('CheckBox', 'xs v' setting, ' ' this.gMain_GetDisplayName(setting))
-
+            this.gMain.cb_%setting% := this.gMain.Add('CheckBox', 'xs v' setting, this.gMain_GetDisplayName(setting))
+        
+        ; Generate hierarchy
+        level  := 0
+        margin := 'xs'
+        for settings in this.arrTooltipSettings {
+            name    := settings[1]
+            setting := settings[2]
+            level   := settings[3]
+            
+            margin  := 'xs+' . ((level - 1) * 10)
+                
+            this.gMain.cb_%setting% := this.gMain.Add('CheckBox', margin ' v' setting, name)
+            this.gMain.cb_%setting%.OnEvent('Click', this.ToggleHierarchy.Bind(this, this.arrTooltipSettings))
+        }
+        
+        this.arrTooltipSettings.Push(['Max. submenu items', 'autoTooltipMaxMenuItems', 4])
+        this.arrSettings.Push(this.arrTooltipSettings*)
+        
+        this.gMain.txt_autoTooltipMaxMenuItems  := this.gMain.Add('Text', margin ' y+8 0x0100', 'Max. submenu items:')
+        this.gMain.edit_autoTooltipMaxMenuItems := this.gMain.Add('Edit', 'x+20 yp-2 w50 vautoTooltipMaxMenuItems Number Limit' StrLen(Radify.range.autoTooltipMaxMenuItems[2]))
+        this.gMain.Add('UpDown', 'Range' Radify.range.autoTooltipMaxMenuItems[1] '-' Radify.range.autoTooltipMaxMenuItems[2])
+                
         this.gMain.pic_miscInfo := this.gMain.Add('Picture', 'xs-218 ys-24 w15 h15 +0x0100', this.mIcons['iSmall'])
         this.gMain.btn_resetMisc := this.gMain.Add('Button', 'xs+224 ys-28 w22 h22')
         this.gMain.btn_resetMisc.OnEvent('Click', this.gMain_btn_resetMisc_Click.Bind(this))
@@ -633,9 +668,13 @@ class RadifySkinEditor {
             ['cb_alwaysOnTop', '➤ AlwaysOnTop - Keeps the menu always on top.'],
             ['cb_activateOnShow', '➤ ActivateOnShow - Activates menu window on show.'],
             ['cb_hideOnLoseFocus', '➤ HideOnLoseFocus - Hides menu window when focus is lost.'],
-            ['cb_enableTooltip', '➤ EnableTooltip - Enables tooltips for menu items.'],
             ['cb_enableGlow', '➤ EnableGlow - Enables glow effect on hover.'],
-            ['cb_autoTooltip', '➤ AutoTooltip - Generates the tooltip text if "Tooltip" is not set, based on item text or image name.'],
+            ['cb_enableTooltip', '➤ EnableTooltip - Enables tooltips for menu items.'],
+            ['cb_autoTooltip', '➤ AutoTooltip - Generates the tooltip text if "Tooltip" is not set, based on item text, image name for menu structure.'],
+            ['cb_autoTooltipStructure', '➤ Generates the tooltip from Menu structure: its actions, text, submenus (e.g. ``click: Dir, rightClick: Menu "files"``.'],
+            ['cb_autoTooltipMenuItemTextFirst', '➤ Generate tooltip from menus and items text. If text is missing, generate from actions and submenus.'],
+            ['cb_autoTooltipItemActionFirstOnly', '➤ Generate tooltip from the first found action of each menu or item.'],
+            ['txt_autoTooltipMaxMenuItems', '➤ Max. amount of each menu and submenu items in the tooltip. -1 = all; 0 = none; >=1 = count.'],
             ['cb_autoCenterMouse', '➤ AutoCenterMouse - Centers the mouse cursor when the menu is shown.'],
             ['cb_savePathFindItem', '➤ SaveFoundItem - Saves the name of the last Found Item and displays it during the next search.'],
             ['cb_casePathFind', '➤ CaseSensPathFind - Find Item compares uppercase and lowercase letters in Item Text.'],
@@ -644,6 +683,8 @@ class RadifySkinEditor {
             ['txt_menuRightClick', '➤ MenuRightClick - Action to execute when right-clicking the menu background.'],
             ['txt_centerClick', '➤ CenterClick - Action to execute when clicking the center area.'],
             ['txt_centerRightClick', '➤ CenterRightClick - Action to execute when right-clicking the center area.'],
+            ['txt_stayOpenOn', '➤ StayOpenOn - Keep the menu open while this key is held (e.g., to open multiple items at once regardless of CloseOnItemClick).'],
+            ['txt_pathFindHotkey', '➤ PathFindHotkey - Show search window to Find Item after pressing this hotkey.'],
             ['cb_closeOnItemClick', '➤ CloseOnItemClick - Closes the entire menu tree when a menu item is clicked.'],
             ['cb_closeOnItemRightClick', '➤ CloseOnItemRightClick - Closes the entire menu tree when a menu item is right-clicked.'],
             ['cb_mirrorClickToRightClick', '➤ MirrorClickToRightClick - Automatically assigns the "Click" action to "RightClick".'],
@@ -922,11 +963,12 @@ class RadifySkinEditor {
         for key in ['activateOnShow', 'hideOnLoseFocus', 
             'alwaysOnTop', 'autoCenterMouse', 'autoTooltip', 'centerSize', 
             'closeOnItemClick', 'closeOnItemRightClick', 'mirrorClickToRightClick', 
-            'enableGlow', 'enableTooltip', 
+            'enableGlow', 
             'savePathFindItem', 'casePathFind', 'strictPathFind',
             'itemBackgroundImageOnCenter', 'itemBackgroundImageOnItems', 'itemSize', 
             'outerRingMargin', 'outerRimWidth', 'speedPathFind',  
-            'closeMenuBlock', 'enableItemText', 'submenuIndicatorSize']
+            'closeMenuBlock', 'enableItemText', 'submenuIndicatorSize', 'pathFindHotkey', 
+            'autoTooltipMaxMenuItems']
             this.gMain[key].Value := skinObj.%key%
 
         for key in ['menuClick', 'menuRightClick', 'centerClick', 'centerRightClick']
@@ -934,10 +976,30 @@ class RadifySkinEditor {
             
         if !this.DDLchoose(skinObj.rootPathFind, this.arrMenuPlaceholders, this.gMain.combox_rootPathFind)
             this.gMain.combox_rootPathFind.Text := skinObj.rootPathFind
+            
+        if !this.DDLchoose(skinObj.stayOpenOn, this.arrStayOpenOn, this.gMain.ddl_stayOpenOn)
+            this.gMain.ddl_stayOpenOn.Text := skinObj.stayOpenOn
 
         for key in ['itemImageScale', 'radiusScale', 'centerImageScale', 
             'itemImageYRatio', 'submenuIndicatorYRatio']
             this.gMain[key].Value := Round(skinObj.%key%, 2)
+            
+        ; Set checkboxes
+        for settings in this.arrTooltipSettings {
+            setting := settings[2]
+            if skinObj.hasOwnProp(setting) {
+                this.gMain[setting].value := Integer(skinObj.%setting%)
+            }
+        }
+        
+        ; Disable hierarchy if needed
+        for settings in this.arrTooltipSettings {
+            cbx := this.gMain[settings[2]]
+            if (cbx.value = 0) {
+                this.ToggleHierarchy(this.arrTooltipSettings, cbx)
+                break
+            }                
+        }                   
     }
 
     ;=============================================================================================
@@ -1154,9 +1216,11 @@ class RadifySkinEditor {
 
     static gMain_GetDisplayName(key)
     {
-        for settings in this.arrSettings
+        for settings in this.arrSettings {
             if (settings[2] = key)
                 return settings[1]
+        }
+        return key
     }
 
     ;=============================================================================================
@@ -2047,6 +2111,34 @@ class RadifySkinEditor {
 
         this.gMain.edit_%param%.Value := color
         this.gMain_UpdateTextPreview()
+    }
+    
+    /**
+     * Sets the "enabled"/"disabled" state for passed `settings` in `gMain` based on the state of the `checkbox`.
+     * @param {Array<settings>} settings - Ordered array `[text, setting, level]` where `level` represents setting nesting.
+     * @param {Gui.Control} checkbox - Control object with `name` and `value` fields
+     */
+    static ToggleHierarchy(settings, checkbox, *)
+    {        
+        idx := 0        
+        while (++idx <= settings.length) {
+            ; Find clicked checkbox
+            if (checkbox.name != settings[idx][2])
+                continue
+            
+            ; Сheckbox cannot change the state of settings 
+            ; on the current or previous level
+            if (idx + 1 > settings.length 
+             || settings[idx][3] >= settings[idx + 1][3])
+                return
+            
+            ; Set the state of the options below
+            while (++idx <= settings.length) {
+                setting := settings[idx][2]
+                this.gMain[setting].enabled := checkbox.value
+            }
+            break
+        }
     }
 
     /********************************************************************************************
