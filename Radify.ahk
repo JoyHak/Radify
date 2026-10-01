@@ -6,9 +6,9 @@
 /*********************************************************************************************
  * Radify - A radial menu launcher with multi-ring layouts, submenus and interactive items.
  * @author Martin Chartier (XMCQCX)
- * @version 1.1.0
+ * @version 1.1.0.10
  * @license MIT
- * @date 2025-08-28
+ * @date 2026-10-01
  * @see {@link https://github.com/XMCQCX/RadifyClass-RadifySkinEditor GitHub}
  * @see {@link https://www.autohotkey.com/boards/viewtopic.php?f=83&t=138484 AHK Forum}
  ********************************************************************************************/
@@ -79,7 +79,6 @@ Class Radify {
             autoTooltipMenuItemTextFirst: true,
             autoTooltipItemActionFirstOnly: false,
             autoTooltipMaxMenuItems: 2,
-            autoTooltipMaxSubmenuItems: 2,
             enableTooltip: true,
             enableGlow: true,
             enableItemText: true,
@@ -131,6 +130,7 @@ Class Radify {
             autoTooltipStructure: [0, 1],
             autoTooltipMenuItemTextFirst: [0, 1],
             autoTooltipItemActionFirstOnly: [0, 1],
+            autoTooltipMaxMenuItems: [-1, 99],
             enableItemText: [0, 1],
             textSize: [5, 100],
             textRendering: [0, 5],
