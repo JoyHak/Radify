@@ -69,17 +69,17 @@ Class Radify {
             savePathFindItem: true,
             casePathFind: false,
             strictPathFind: false,
-            pathFindHotkey: '^vk46',
+            pathFindHotkey: '^vk46',  ; Ctrl+F
             autoCenterMouse: true,
             alwaysOnTop: true,
             activateOnShow: false,
             hideOnLoseFocus: false,
+            enableTooltip: true,
             autoTooltip: true,
             autoTooltipStructure: false,
             autoTooltipMenuItemTextFirst: true,
             autoTooltipItemActionFirstOnly: false,
             autoTooltipMaxMenuItems: 2,
-            enableTooltip: true,
             enableGlow: true,
             enableItemText: true,
             textColor: 'FFFFFF',
@@ -689,15 +689,10 @@ Class Radify {
         ; so we can display them in the tooltip
         if (oMenu.options.autoTooltip && !item.tooltip) {
             if (oMenu.options.autoTooltipStructure) {
-                item.tooltip := ''
-                if (item.text) {
-                    item.tooltip .= item.text '`n'
-                }
-                item.tooltip .= this.ItemToString(
+                item.tooltip := this.ItemToString(
                     item, 
                     oMenu.options.autoTooltipMenuItemTextFirst, 
-                    oMenu.options.autoTooltipItemActionFirstOnly, 
-                    oMenu.options.autoTooltipMaxMenuItems
+                    oMenu.options.autoTooltipItemActionFirstOnly
                 )
             } else {
                 if (item.text) {
@@ -761,13 +756,17 @@ Class Radify {
      * Converts item actions into string.
      * @param {object} menuItem - Objects that represents menu item
      * @param {bool} firstActionOnly - Append only first found action for each item: "click", "rightClick", etc.
-     * @param {bool} textFirst - If `text` property in **submenu item** is present, append it's value. Otherwise search for action.
-     * @param {integer} limit - Max. items limit in the in **submenu item**. `-1` means "all items".
+     * @param {bool} textFirst - If `text` property in is present, append it's value.
      * @returns {string} `action: {String}` pairs
      */
-    static ItemToString(menuItem, textFirst := true, firstActionOnly := false, limit := 2) 
+    static ItemToString(menuItem, textFirst := true, firstActionOnly := false) 
     {
         str := ''
+        if (textFirst 
+         && menuItem.HasOwnProp('text') && menuItem.text) {
+            str .= Trim(menuItem.text, ' `n') . '`n'
+        }
+    
         for key, action in this.EnumerateActions(menuItem,,, firstActionOnly) {
             if (s := String(action))
                 str .= key ': ' s '`n'
