@@ -1396,8 +1396,14 @@ Class Radify {
      * Displays search window for {@link Radify#PathFind}
      */
     static AskPathFind(*) {
-        this.CloseRoot(this.lastMenuOpenInfo.id)
-        o := this.menus.%this.lastMenuOpenInfo.id%.options
+        menuId := this.lastMenuOpenInfo.id
+        o := this.menus.%menuId%.options
+        
+        if !this.CloseRoot(menuId) {
+            ; Searching wasn't triggered by Radify
+            HotKey(o.pathFindHotkey, 'Off')
+            return
+        }
 
         ; Hide border, buttons, titlebar
         ui := Gui('-E0x200 -SysMenu +DPIScale', A_Space)
@@ -1607,26 +1613,22 @@ Class Radify {
 
         CoordMode('Mouse', 'Screen')
         MouseGetPos(&mouseX, &mouseY, &hwndUnderMouse)
-        
-        this.lastMenuOpenInfo := {
-            mouseX: mouseX, 
-            mouseY: mouseY,
-            hwndUnderMouse: hwndUnderMouse, 
-            id: menuId
-        }
-        
-        this.ShowAt(oMenu, mouseX, mouseY, autoCenterMouse?)
+        this.ShowAt(oMenu, mouseX, mouseY, autoCenterMouse?, hwndUnderMouse?)
 
-        if (oMenu.options.pathFindHotkey) {
-            HotKey(oMenu.options.pathFindHotkey, this.AskPathFind.Bind(this), 'On')
-        }
-        
+        HotKey(oMenu.options.pathFindHotkey, this.AskPathFind.Bind(this), 'On')        
         return true
+    }
+    
+    static ShowLast() {
+        menuId := this.lastMenuOpenInfo.id
+        if (this.menus.HasOwnProp(menuId)) {
+            this.Show(menuId)
+        }
     }
 
     ;=============================================================================================
 
-    static ShowAt(oMenu, mouseX, mouseY, autoCenterMouse?)
+    static ShowAt(oMenu, mouseX, mouseY, autoCenterMouse?, hwndUnderMouse?)
     {
         menuSize := oMenu.scaledSize
         monIndex := this.MonitorGetMouseIsIn()
@@ -1652,6 +1654,14 @@ Class Radify {
         this.RegisterClickHandlers(oMenu)
         oMenu.gui.Opt('-Disabled')
         this.PlaySound(oMenu.options.soundOnShow)
+        
+        this.lastMenuOpenInfo := {
+            mouseX: mouseX, 
+            mouseY: mouseY,
+            hwndUnderMouse: (hwndUnderMouse ?? 0), 
+            id: oMenu.id
+        }
+        
         oMenu.gui.Show('x' left ' y' top ' ' (!oMenu.options.activateOnShow ? 'NA' : ''))
     }
 
@@ -1663,12 +1673,12 @@ Class Radify {
     static Close(menuId, suppressSound := false, *)
     {
         if (!this.menus.HasOwnProp(menuId))
-            return
+            return false
 
         oMenu := this.menus.%menuId%
 
         if (!oMenu.isFullyInitialized || !DllCall('User32.dll\IsWindowVisible', 'ptr', oMenu.hwnd))
-            return
+            return false
         
         for submenuId in oMenu.submenuIds
             if (this.menus.HasOwnProp(submenuId))
@@ -1685,9 +1695,8 @@ Class Radify {
 
         this.DeregisterClickHandlers(oMenu)
         
-        if (oMenu.options.pathFindHotkey) {
-            HotKey(oMenu.options.pathFindHotkey, this.AskPathFind.Bind(this), 'Off')
-        }
+        HotKey(oMenu.options.pathFindHotkey, 'Off')
+        return true
     }
     
     /**
@@ -1698,12 +1707,12 @@ Class Radify {
     static CloseMenu(menuId, suppressSound := false)
     {
         if (!this.menus.HasOwnProp(menuId))
-            return
+            return false
 
         oMenu := this.menus.%menuId%
 
         if (!oMenu.isFullyInitialized || !DllCall('User32.dll\IsWindowVisible', 'ptr', oMenu.hwnd))
-            return
+            return false
 
         parentMenu := (oMenu.parentMenuId ? this.menus.%oMenu.parentMenuId% : 0)
 
@@ -1728,6 +1737,7 @@ Class Radify {
 
             this.RegisterClickHandlers(parentMenu)
         }
+        return true
     }
     
     /**
@@ -1741,7 +1751,7 @@ Class Radify {
         while (parentId := this.menus.%rootMenuId%.parentMenuId) {
             rootMenuId := parentId
         }
-        this.Close(rootMenuId, suppressSound) 
+        return this.Close(rootMenuId, suppressSound) 
     }
 
     ;=============================================================================================
@@ -1751,12 +1761,11 @@ Class Radify {
         parentMenu := this.menus.%parentMenuId%
         sMenu := this.menus.%submenuId%
         if !(parentMenu.isFullyInitialized && sMenu.isFullyInitialized)
-            return
+            return false
 
         submenuIsVisible := DllCall('User32.dll\IsWindowVisible', 'ptr', sMenu.hwnd)
         if (submenuIsVisible) {
-            this.CloseMenu(submenuId)
-            return
+            return this.CloseMenu(submenuId)
         }
         
         WinGetClientPos(&winLeft, &winTop,,, parentMenu.hwnd)
@@ -1771,6 +1780,8 @@ Class Radify {
         this.DeregisterClickHandlers(parentMenu)
         this.ShowAt(sMenu, screenX, screenY)
         parentMenu.gui.Opt('+Disabled')
+        
+        return true
     }
 
     ;=============================================================================================
