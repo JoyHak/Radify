@@ -117,7 +117,7 @@ class Extract extends ICallback {
     }
     
     Call() {
-        RunWait('"C:\Program Files\7-Zip\7zG.exe" x "-air!' this.archive '" -an -sae -o"' this.workDir '"')
+        RunWait('"C:\Program Files\7-Zip\7zG.exe" x "-air!' this.archive '" -an -y -sae -o"' this.workDir '"')
         
         if !this.exe
             return
@@ -142,7 +142,9 @@ class Extract extends ICallback {
              : this.workDir . '\' . this.exe
         
         Run(this.exe, this.workDir)
-        Run(this.workDir)
+        ; Run(this.workDir)
+        Tooltip(this.ToString())
+        SetTimer(Tooltip, -2000)
     }
     
     ToString() => 'extract ./' . GetFileName(this.archive)  . ' and run ' . this.exe
