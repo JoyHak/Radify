@@ -1,321 +1,217 @@
 #Requires AutoHotkey v2.0
 #SingleInstance
-
 #Include Radify.ahk
-#Include C:\Configs and settings\AutoHotKey\hotkeys\Lib\messages.ahk
+#Include lib\Callback\Callbacks.ahk
 
-Persistent
-CoordMode('tooltip', 'screen')
+Persistent()
+SetWorkingDir(A_ScriptDir)
 TraySetIcon('images\radify0.ico',, true)
+pToken := Gdip_Startup()
 
-if (!pToken := Gdip_Startup()) {
-    MsgBox('GDI+ failed to start. Please ensure you have GDI+ on your system.',, 'Iconx')
-    ExitApp    
-}
+#Include Examples.ahk
 
-if (FileExist('History.json')) {
-    _file := FileOpen('History.json', 'r', 'UTF-8')
-    history := Json.Parse(_file.Read(), false, false)
-    _file.Close()
-} else {
-    history := {
-        shutdownTimer: false,
-        powerScheme: '',
-    }
-}
-
-; ── Callbacks ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-Dir(path, *) => Run.Bind(path, , , , )
-App(path, *) {
-    return _Run.Bind(path)
-    
-    _Run(path) {        
-        SplitPath(path, , , , &base)  
-        
-        if (hwnd := WinExist('ahk_exe ' base '.exe')) {
-            WinShow(hwnd)
-            WinActivate(hwnd)
-            return
-        } 
-        
-        try {
-            Run(path)            
-        } catch as e {
-            Radify.OnError(e)
+; This is your root (or main) menu. You can name it as you want (e.g. "MyMenu"), but the name must be unique.
+Radify.CreateMenu('mainMenu', [
+    [   ; ring 1
+        {
+            ; To create a submenu, simply use `Submenu()` function or `submenu:` property with options
+            click: Submenu("Applications", appsMenu),
+            rightClick: Submenu("Websites", websitesMenu, websitesMenuOptions),
+            shiftClick: Submenu("Scripts", scriptsMenu),
+            altClick: Submenu("Symbols", symbolMenu, symbolMenuOptions),
+            ctrlClick: Submenu("Emoji", emojisMenu, emojisMenuOptions),
+            text: 'Apps',   ; This is main item text
+            /**
+             * You can add Submenu() without a name or pass rings directly: 
+             * @example
+             * Submenu(, [
+             *    [
+             *        {image: 'autohotkey.ico', text: 'QuickSwitch'},
+             *        {image: 'autohotkey beta.ico', text: 'Radify'},
+             *        {image: 'aquahotkey.png', text: 'AquaHotkey'}
+             *    ]
+             * ])
+             * Name will be auto-generated.
+            */
+            
+            ; Auto-generate tooltip based on privided submenus and "click" actions
+            enableTooltip: true,
+            autoTooltip: true,
+            autoTooltipStructure: true,
+            autoTooltipMenuItemTextFirst: false,
+            
+            image: 'pointer.ico',
+            itemImageScale: 2,
+            itemImageYRatio: 0.40,
+            textYRatio: 0.75
         }
-    }
-}
+    ],
+    [   ; ring 2
+        {image: 'calculator.png', click: App('calc.exe')},
+        {image: 'notepad.png', click: App('notepad.exe')},
+        {image: 'documents.png', click: App(A_MyDocuments)},
+        {
+            image: 'emoji_robot.png',
+            text: 'AI',
+            itemImageScale: 0.30,
+            itemImageYRatio: 0.40,
+            textYRatio: 0.78,
+            submenu: aiMenu,
+            submenuOptions: aiMenuOptions,
+        },
+        {
+            image: 'shopping.png',
+            text: 'Shopping',
+            itemImageScale: 0.30,
+            itemImageYRatio: 0.40,
+            textYRatio: 0.75,
+            submenu: shoppingMenu,
+            submenuOptions: shoppingMenuOptions,
+        },
+        {
+            image: 'lightning.png',
+            text: 'Power',
+            tooltip: '• System power options •`nShutdown, Restart, Sleep, etc.',
+            itemImageScale: 0.30,
+            itemImageYRatio: 0.40,
+            textYRatio: 0.75,
+            submenu: systemPowerMenu,
+            submenuOptions: systemPowerMenuOptions,
+        },
+        {
+            image: 'Battery1.png',
+            text: 'Plans',
+            tooltip: '• Power Plans •`nRight-Click: Open Control Panel > Power Options',
+            rightClick: App('powercfg.cpl'),
+            itemImageScale: 0.30,
+            itemImageYRatio: 0.40,
+            textYRatio: 0.75,
+            submenu: powerPlansMenu,
+        },
+        {
+            image: 'cleaning-brush.png',
+            text: 'Cleanup',
+            itemImageScale: 0.35,
+            itemImageYRatio: 0.40,
+            textYRatio: 0.75,
+            submenu: systemCleanupMenu,
+        },
+        {
+            image: 'tool-box.png',
+            text: 'Tools',
+            itemImageScale: 0.35,
+            itemImageYRatio: 0.40,
+            textYRatio: 0.75,
+            submenu: toolsMenu,
+        },
+        {
+            image: 'settings-app.png',
+            text: 'Settings',
+            tooltip: '• Windows Settings •`nRight-Click: Open Windows Settings app',
+            rightClick: App('ms-settings:'),
+            itemImageScale: 0.30,
+            itemImageYRatio: 0.40,
+            textYRatio: 0.75,
+            submenu: settingsMenu,
+        },
+        {image: 'magnifier.png', click: App('magnify.exe')},
+    ],
+    [   ; ring 3
+        {image: 'snipping-tool.png', click: App('snippingTool.exe')},
+        {image: 'snip-sketch.png', click: App('ms-screenclip:')},
+        {},
+        {},
+        {image: 'radify-skin-editor.png', click: App('Radify Skin Editor.ahk'), tooltip: 'Open Radify Skin Editor'},
+        {image: 'folder-orange.png', click: App(A_ScriptDir), tooltip: 'Open Script Folder'},
+        {image: 'edit-orange.png', click: (*) => Edit(), tooltip: 'Edit Menu'},
+        {image: 'reload-orange.png', click: (*) => Reload(), tooltip: 'Reload'},
+        {image: 'close.png', click: 'close', tooltip: 'Close'},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {image: 'control-panel.png', click: Dir('shell:::{26EE0668-A00A-44D7-9371-BEB064C98683}')},
+        {image: 'task-manager.png', click: App('taskmgr.exe')},
+        {image: 'system-display-settings-app.png', click: App('ms-settings:display'), tooltip: 'Display settings'},
+        {image: 'cmd.png', click: App('Scripts\AdminCmd.ahk'), tooltip: 'Command Prompt as Administrator'},
+        {image: 'powershell.png', click: App('Scripts\AdminPowerShell.ahk'), tooltip: 'PowerShell as Administrator'},
+    ],
+], 
+{
+    ; Close menu after selection
+    closeOnItemClick: true,
+    closeOnItemRightClick: true,
+    ; But keep open while you holding "Alt"
+    stayOpenOn: 'alt',
+})
 
-Cmd(cmd,  *) => Run(A_ComSpec ' /c ' cmd, , 'hide')
 
-Image(path, menuId, itemText, image) {
-    return (*) => (
-        Run(path), 
-        Radify.SetItemImage(menuId, itemText, image)
-    )
-}
-
-ShowTooltip(text, delayMs := 2000) {
-	ToolTip(text)      
-    SetTimer(ToolTip, -delayMs)
-}
-
-; ── Modes ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-    
-ShutdownMenu(limit := 12) {
-    m := Menu()
-    m.Add('&Abort shutdown', Cmd.Bind('shutdown.exe -a'))
-    m.Add()
-    
-    loop 12 {
-        m.Add(
-            '&' A_Index ' hours', 
-            Cmd.Bind('shutdown.exe -s -f -t ' 3600 * A_Index)
-        )
-    }
-
-    return (*) => m.Show()
-}
-
-; ── Power Scheme ───────────────────────────────────────────────────────────────────────────────────────────────────
-
-; Use powercfg /list or powercfg /getactivescheme to get your power schemes
-powerSchemes := [
-  {
-    id: '2b253980-fc5d-471a-8a6f-406a2315c9de', 
-    text: 'Ultimate'
-  },
-  {
-    id: '381b4222-f694-41f0-9685-ff5bb260df2e', 
-    text: 'Balance'
-  },
-  {
-    id: '4353a75f-5e8a-4572-99c8-2613c648674d', 
-    text: 'Save'
-  },
-]
-
-GetPowerImage(idx := 0) {    
-    if (!idx && history.powerScheme) {
-        for scheme in powerSchemes {
-            if (scheme.id = history.powerScheme) {
-                idx := A_Index
-                break
-            }    
-        }
-    }
-    return 'icons\battery' idx '.png'
-}
-
-SetPowerScheme(idx, menuId?, itemText?) {
-    Cmd('powercfg.exe /SetActive ' powerSchemes[idx].id)
-    history.powerScheme := powerSchemes[idx].id
-    
-    if (IsSet(menuId) && IsSet(itemText)) {        
-        Radify.SetItemImage(
-            menuId, 
-            itemText, 
-            GetPowerImage(idx)
-        )
-    }
-}
-
-BatteryMenu(parentMenuText, targetMenuText := 'Power') {    
-    schemes := []
-    for scheme in powerSchemes {
-        schemes.push({
-            text:  scheme.text,
-            click: SetPowerScheme.Bind(A_Index, parentMenuText, targetMenuText), 
-            image: GetPowerImage(A_Index), 
-        })
-    }
-    
-    return {
-        text:  targetMenuText,
-        image: GetPowerImage(),
-        ItemBackgroundImage: 'Skins\Minimal\ItemGlow0.png', 
-        click: Sub(,[[schemes*]])
-    }
-}
-
-; ── Menus ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-Radify.CreateMenu('main', [[
-  {
-    text: 'Folders',
-    image: 'icons\folder.png',
-    ItemBackgroundImage: 'Skins\Minimal\ItemGlow2.png', 
-    click: Sub(,[[
-      {
-        text: 'Docs',
-        click: Dir(A_UserName '\Documents'),
-        image: 'icons\documents.ico'
-      },
-      {
-        text: 'Downloads',
-        click: Dir(A_UserName '\Downloads'),
-        image: 'icons\downloads.ico'
-      }
-    ]]),
-    rightClick: Sub(,[[
-      {
-        text: 'Programs',
-        click: Dir('C:\Program Files'),
-        image: 'icons\win.ico'
-      },
-      {
-        text: 'Temp',
-        click: Dir(A_Temp),
-        image: 'icons\trash.ico'
-      },
-    ]])
-  },
-  {
-    text: 'Settings',
-    image: 'icons\cog.png',
-    ItemBackgroundImage: 'Skins\Minimal\ItemGlow2.png', 
-    click: Sub('lSet', [[
+InitTrayMenu(*) {
+    trayMenu := [
       {
         text: 'Settings',
-        image: 'icons\cog.png',
-        ItemBackgroundImage: 'Skins\Minimal\ItemGlow0.png', 
-        click: Sub(,[[
-          {
-            text: 'Settings',
-            click: App('ms-settings:'),
-            image: 'icons\cog2.png'
-          }, 
-          {
-            text: 'Graphics',
-            click: App('ms-settings:display-advancedgraphics'),
-            image: 'icons\network.ico'
-          }
-        ]])
-      },      
-      {
-        text: 'Theme',
-        image: 'icons\colors.png',
-        ItemBackgroundImage: 'Skins\Minimal\ItemGlow0.png', 
-        click: Sub(,[[
-          {
-            text: 'Add theme',
-            click: Dir('C:\Windows\Resources\Themes'),
-            image: 'icons\FolderColors.png'
-          },
-          {
-            text: 'Background',
-            click: App('ms-settings:personalization-background'),
-            image: 'icons\image.png'
-          },
-          {
-            text: 'Windows style',
-            click: App('SystemPropertiesPerformance.exe'),
-            image: 'icons\window.png'
-          },
-          {
-            text: 'Change theme',
-            click: App('ms-settings:themes'),
-            image: 'icons\colors.png'
-          },
-          {
-            text: 'Trasparency',
-            click: App('ms-settings:colors'),
-            image: 'icons\transparency.png'
-          }
-        ]])
-      }, 
-      BatteryMenu('lSet', 'Power'),  ; switch power scheme
-      {
-        text: 'Restart explorer',
-        click: Cmd.Bind('taskkill.exe /f /im explorer.exe & start explorer.exe'),
-        image: 'icons\Explorer.png'
-      }
-    ]]), 
-    rightClick: Sub(,[[
-      {
-        text: 'Shutdown timer',
-        click: ShutdownMenu(),
-        image: 'icons\clock.ico'
+        image: 'images\settings.ico',
+        click: (*) => Run('Radify Skin Editor.ahk'),
       },
       {
-        text: 'OS boot',
-        click: Cmd.Bind('shutdown.exe -r -o -f -t 0'),
-        image: 'icons\boot.png'
-      }
-    ]])
-  }
-]])
+        text: 'Edit',
+        image: 'images\edit-orange.ico',
+        click: (*) => Edit(),
+      },
+      {
+        text: 'Scripts',
+        image: 'images\folder-orange.ico',
+        click: (*) => Run(A_ScriptDir),
+      },
+      {
+        text: 'Suspend',
+        image: 'images\radify0.ico',
+        click: (*) => ToggleSuspend(),
+      },
+      {
+        text: 'Reload',
+        image: 'images\reload-orange.ico',
+        click: (*) => Reload(),
+      },
+      {
+        text: 'Exit',
+        image: 'images\exit-orange.ico',
+        click: (*) => ExitApp(),
+      },       
+    ]
 
-; ── Tray ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-trayMenu := [
-  {
-    text: 'Settings',
-    image: 'images\settings.ico',
-    click: (*) => Run('Radify Skin Editor.ahk'),
-  },
-  {
-    text: 'Edit',
-    image: 'images\edit-orange.ico',
-    click: (*) => Edit(),
-  },
-  {
-    text: 'Scripts',
-    image: 'images\folder-orange.ico',
-    click: (*) => Run(A_ScriptDir),
-  },
-  {
-    text: 'Suspend',
-    image: 'images\radify0.ico',
-    click: (*) => ToggleSuspend(),
-  },
-  {
-    text: 'Reload',
-    image: 'images\reload-orange.ico',
-    click: (*) => Reload(),
-  },
-  {
-    text: 'Exit',
-    image: 'images\exit-orange.ico',
-    click: (*) => ExitApp(),
-  },       
-]
-
-
-A_TrayMenu.Delete()
-for item in trayMenu {
-    A_TrayMenu.Add(item.text, item.click)
-    A_TrayMenu.SetIcon(item.text, item.image)
-}
-
-OnTrayClick(wParam, lParam, uMsg, hWnd) {
-    static WM_LBUTTONDOWN := 0x201
-
-    if (lParam = WM_LBUTTONDOWN) {        
-        Radify.Show('main')
+    A_TrayMenu.Delete()
+    for i in trayMenu {
+        A_TrayMenu.Add(i.text, i.click)
+        A_TrayMenu.SetIcon(i.text, i.image)
     }
+
+    
+    OnTrayClick(wParam, lParam, uMsg, hWnd) {
+        static WM_LBUTTONDOWN := 0x201
+        if (lParam = WM_LBUTTONDOWN) {        
+            Radify.Show('main')
+        }
+    }
+    
+    ToggleSuspend() {
+        Suspend(-1)
+        TraySetIcon('images\radify' (!A_IsSuspended) '.ico')
+    }
+    
+    OnMessage(0x404, OnTrayClick)
+    TraySetIcon('images\radify1.ico',, true)
 }
 
 OnMenuExit(exitReason := 'exit', exitCode := 0) {   
-    _history := Json.stringify(history)
-    
-    _file := FileOpen('History.json', 'w', 'UTF-8')
-    _file.Write(_history)
-    _file.Close()
-    
     Radify.DisposeResources()
     Gdip_Shutdown(pToken)
 }
-    
-ToggleSuspend() {
-    Suspend(-1)
-    TraySetIcon('images\radify' (!A_IsSuspended) '.ico')
-}
 
-OnMessage(0x404, OnTrayClick)
-Hotkey("$LWin",  (*) => Radify.Show('main'))
+; OnMessage(msg.key.LWin, ShowMenu)
 OnExit(OnMenuExit)
 
-TraySetIcon('images\radify1.ico',, true)
-; ShowTooltip(A_ScriptName ' is initialized')
+Hotkey('$LWin', (*) => Radify.Show('mainMenu'), 'On')
+; Hotkey('^s', (*) => Reload(), 'On')
+InitTrayMenu()

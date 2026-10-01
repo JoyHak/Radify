@@ -11,6 +11,19 @@ GetFileName(path) {
 }
 
 /**
+ * Creates "open website" callback.
+ */
+class Web extends ICallback {
+    __New(uri) {
+        this.uri := uri
+    }
+    
+    Call() => Run(this.uri)
+    
+    ToString() => '"' . this.uri . '"'
+}
+
+/**
  * Creates "open directory" (folder) callback.
  */
 class Dir extends ICallback {
@@ -149,3 +162,29 @@ class Extract extends ICallback {
     
     ToString() => 'extract ./' . GetFileName(this.archive)  . ' and run ' . this.exe
 }
+
+/**
+ * Appends string to the Clipboard.
+ */
+ class Clip extends ICallback {
+    __New(toSend, isClipReverted := true, untilRevert := 300) {
+        this.data := toSend
+        this.isClipReverted := isClipReverted
+        this.untilRevert := untilRevert        
+    }
+    
+    Call() {
+        if (this.isClipReverted)
+            prevClip := ClipboardAll()
+
+        A_Clipboard := ''
+        A_Clipboard := this.data
+        SendEvent('^v')
+
+        if (this.isClipReverted)
+            SetTimer((*) => A_Clipboard := prevClip, -this.untilRevert)
+    }
+        
+    ToString() => 'copy "' . this.data . '"'
+}
+
