@@ -191,7 +191,7 @@ InitTrayMenu(*) {
     OnTrayClick(wParam, lParam, uMsg, hWnd) {
         static WM_LBUTTONDOWN := 0x201
         if (lParam = WM_LBUTTONDOWN) {        
-            Radify.Show('main')
+            Radify.Show('mainMenu')
         }
     }
     
